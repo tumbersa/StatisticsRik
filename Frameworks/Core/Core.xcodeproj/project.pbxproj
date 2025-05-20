@@ -6,113 +6,54 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		E25B94D02DDBCF5600D1CF94 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E25B94CF2DDBCF5600D1CF94 /* RxSwift */; };
-		E25BA7A22DDD131700D1CF94 /* Core.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E25BA7A12DDD130B00D1CF94 /* Core.framework */; };
-		E25BA7A32DDD131700D1CF94 /* Core.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E25BA7A12DDD130B00D1CF94 /* Core.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		E25BA7A02DDD130B00D1CF94 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E25BA7992DDD130B00D1CF94 /* Core.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = E25BA27A2DDD12CB00D1CF94;
-			remoteInfo = Core;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		E25BA7A42DDD131700D1CF94 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				E25BA7A32DDD131700D1CF94 /* Core.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		E25B70D02DDBCB6800D1CF94 /* NetworkLayer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetworkLayer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		E25BA7992DDD130B00D1CF94 /* Core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Core.xcodeproj; sourceTree = "<group>"; };
+		E25BA27A2DDD12CB00D1CF94 /* Core.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Core.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E25B70D52DDBCB6800D1CF94 /* Exceptions for "NetworkLayer" folder in "NetworkLayer" target */ = {
+		E25BA27F2DDD12CB00D1CF94 /* Exceptions for "Core" folder in "Core" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
-				NetworkLayer.h,
+				Core.h,
 			);
-			target = E25B70CF2DDBCB6800D1CF94 /* NetworkLayer */;
+			target = E25BA2792DDD12CB00D1CF94 /* Core */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		E25B70D22DDBCB6800D1CF94 /* NetworkLayer */ = {
+		E25BA27C2DDD12CB00D1CF94 /* Core */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E25B70D52DDBCB6800D1CF94 /* Exceptions for "NetworkLayer" folder in "NetworkLayer" target */,
+				E25BA27F2DDD12CB00D1CF94 /* Exceptions for "Core" folder in "Core" target */,
 			);
-			path = NetworkLayer;
+			path = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		E25B70CD2DDBCB6800D1CF94 /* Frameworks */ = {
+		E25BA2772DDD12CB00D1CF94 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E25B94D02DDBCF5600D1CF94 /* RxSwift in Frameworks */,
-				E25BA7A22DDD131700D1CF94 /* Core.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		E25B70C62DDBCB6800D1CF94 = {
+		E25BA2702DDD12CB00D1CF94 = {
 			isa = PBXGroup;
 			children = (
-				E25B70D22DDBCB6800D1CF94 /* NetworkLayer */,
-				E25BA2852DDD130B00D1CF94 /* Frameworks */,
-				E25B70D12DDBCB6800D1CF94 /* Products */,
+				E25BA27C2DDD12CB00D1CF94 /* Core */,
+				E25BA27B2DDD12CB00D1CF94 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		E25B70D12DDBCB6800D1CF94 /* Products */ = {
+		E25BA27B2DDD12CB00D1CF94 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E25B70D02DDBCB6800D1CF94 /* NetworkLayer.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		E25BA2852DDD130B00D1CF94 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				E25BA79A2DDD130B00D1CF94 /* Core */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		E25BA79A2DDD130B00D1CF94 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				E25BA7992DDD130B00D1CF94 /* Core.xcodeproj */,
-			);
-			name = Core;
-			path = ../Core;
-			sourceTree = "<group>";
-		};
-		E25BA79B2DDD130B00D1CF94 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E25BA7A12DDD130B00D1CF94 /* Core.framework */,
+				E25BA27A2DDD12CB00D1CF94 /* Core.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -120,7 +61,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		E25B70CB2DDBCB6800D1CF94 /* Headers */ = {
+		E25BA2752DDD12CB00D1CF94 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -130,86 +71,64 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		E25B70CF2DDBCB6800D1CF94 /* NetworkLayer */ = {
+		E25BA2792DDD12CB00D1CF94 /* Core */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E25B70D62DDBCB6800D1CF94 /* Build configuration list for PBXNativeTarget "NetworkLayer" */;
+			buildConfigurationList = E25BA2802DDD12CB00D1CF94 /* Build configuration list for PBXNativeTarget "Core" */;
 			buildPhases = (
-				E25B70CB2DDBCB6800D1CF94 /* Headers */,
-				E25B70CC2DDBCB6800D1CF94 /* Sources */,
-				E25B70CD2DDBCB6800D1CF94 /* Frameworks */,
-				E25B70CE2DDBCB6800D1CF94 /* Resources */,
-				E25BA7A42DDD131700D1CF94 /* Embed Frameworks */,
+				E25BA2752DDD12CB00D1CF94 /* Headers */,
+				E25BA2762DDD12CB00D1CF94 /* Sources */,
+				E25BA2772DDD12CB00D1CF94 /* Frameworks */,
+				E25BA2782DDD12CB00D1CF94 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				E25B70D22DDBCB6800D1CF94 /* NetworkLayer */,
+				E25BA27C2DDD12CB00D1CF94 /* Core */,
 			);
-			name = NetworkLayer;
+			name = Core;
 			packageProductDependencies = (
-				E25B94CF2DDBCF5600D1CF94 /* RxSwift */,
 			);
-			productName = NetworkLayer;
-			productReference = E25B70D02DDBCB6800D1CF94 /* NetworkLayer.framework */;
+			productName = Core;
+			productReference = E25BA27A2DDD12CB00D1CF94 /* Core.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		E25B70C72DDBCB6800D1CF94 /* Project object */ = {
+		E25BA2712DDD12CB00D1CF94 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					E25B70CF2DDBCB6800D1CF94 = {
+					E25BA2792DDD12CB00D1CF94 = {
 						CreatedOnToolsVersion = 16.2;
-						LastSwiftMigration = 1620;
 					};
 				};
 			};
-			buildConfigurationList = E25B70CA2DDBCB6800D1CF94 /* Build configuration list for PBXProject "NetworkLayer" */;
+			buildConfigurationList = E25BA2742DDD12CB00D1CF94 /* Build configuration list for PBXProject "Core" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = E25B70C62DDBCB6800D1CF94;
+			mainGroup = E25BA2702DDD12CB00D1CF94;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				E25B94CE2DDBCF5600D1CF94 /* XCRemoteSwiftPackageReference "RxSwift" */,
-			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = E25B70D12DDBCB6800D1CF94 /* Products */;
+			productRefGroup = E25BA27B2DDD12CB00D1CF94 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = E25BA79B2DDD130B00D1CF94 /* Products */;
-					ProjectRef = E25BA7992DDD130B00D1CF94 /* Core.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
-				E25B70CF2DDBCB6800D1CF94 /* NetworkLayer */,
+				E25BA2792DDD12CB00D1CF94 /* Core */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		E25BA7A12DDD130B00D1CF94 /* Core.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = Core.framework;
-			remoteRef = E25BA7A02DDD130B00D1CF94 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
-
 /* Begin PBXResourcesBuildPhase section */
-		E25B70CE2DDBCB6800D1CF94 /* Resources */ = {
+		E25BA2782DDD12CB00D1CF94 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -219,7 +138,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		E25B70CC2DDBCB6800D1CF94 /* Sources */ = {
+		E25BA2762DDD12CB00D1CF94 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -229,11 +148,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		E25B70D72DDBCB6800D1CF94 /* Debug */ = {
+		E25BA2812DDD12CB00D1CF94 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
-				CLANG_ENABLE_MODULES = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -252,22 +170,20 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = kapustin.NetworkLayer;
+				PRODUCT_BUNDLE_IDENTIFIER = kapustin.Core;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		E25B70D82DDBCB6800D1CF94 /* Release */ = {
+		E25BA2822DDD12CB00D1CF94 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
-				CLANG_ENABLE_MODULES = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -286,7 +202,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = kapustin.NetworkLayer;
+				PRODUCT_BUNDLE_IDENTIFIER = kapustin.Core;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -296,7 +212,7 @@
 			};
 			name = Release;
 		};
-		E25B70D92DDBCB6800D1CF94 /* Debug */ = {
+		E25BA2832DDD12CB00D1CF94 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -362,7 +278,7 @@
 			};
 			name = Debug;
 		};
-		E25B70DA2DDBCB6800D1CF94 /* Release */ = {
+		E25BA2842DDD12CB00D1CF94 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -424,44 +340,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E25B70CA2DDBCB6800D1CF94 /* Build configuration list for PBXProject "NetworkLayer" */ = {
+		E25BA2742DDD12CB00D1CF94 /* Build configuration list for PBXProject "Core" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E25B70D92DDBCB6800D1CF94 /* Debug */,
-				E25B70DA2DDBCB6800D1CF94 /* Release */,
+				E25BA2832DDD12CB00D1CF94 /* Debug */,
+				E25BA2842DDD12CB00D1CF94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E25B70D62DDBCB6800D1CF94 /* Build configuration list for PBXNativeTarget "NetworkLayer" */ = {
+		E25BA2802DDD12CB00D1CF94 /* Build configuration list for PBXNativeTarget "Core" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E25B70D72DDBCB6800D1CF94 /* Debug */,
-				E25B70D82DDBCB6800D1CF94 /* Release */,
+				E25BA2812DDD12CB00D1CF94 /* Debug */,
+				E25BA2822DDD12CB00D1CF94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		E25B94CE2DDBCF5600D1CF94 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
-			requirement = {
-				kind = exactVersion;
-				version = 6.9.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		E25B94CF2DDBCF5600D1CF94 /* RxSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E25B94CE2DDBCF5600D1CF94 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxSwift;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = E25B70C72DDBCB6800D1CF94 /* Project object */;
+	rootObject = E25BA2712DDD12CB00D1CF94 /* Project object */;
 }
