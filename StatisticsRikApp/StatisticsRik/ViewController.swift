@@ -6,16 +6,16 @@
 //
 
 import UIKit
-import NetworkLayer
+import BuisnessLayer
 
 class ViewController: UIViewController {
 
+    let statisticsService = StatisticsService()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        let a = Fetcher()
-        a.ff()
+        statisticsService.loadData()
         view.backgroundColor = .gray
     }
 
 }
-

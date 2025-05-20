@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E25B70C42DDBCB3C00D1CF94 /* BuisnessLayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E25B70C32DDBCB2900D1CF94 /* BuisnessLayer.framework */; };
 		E25B70C52DDBCB3C00D1CF94 /* BuisnessLayer.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E25B70C32DDBCB2900D1CF94 /* BuisnessLayer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E25BA2312DDBE0B300D1CF94 /* PinLayout in Frameworks */ = {isa = PBXBuildFile; productRef = E25BA2302DDBE0B300D1CF94 /* PinLayout */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E25BA2312DDBE0B300D1CF94 /* PinLayout in Frameworks */,
 				E25B70C42DDBCB3C00D1CF94 /* BuisnessLayer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -152,6 +154,7 @@
 			);
 			name = StatisticsRik;
 			packageProductDependencies = (
+				E25BA2302DDBE0B300D1CF94 /* PinLayout */,
 			);
 			productName = StatisticsRik;
 			productReference = E2F134EE2DDB9DCD00C44298 /* StatisticsRik.app */;
@@ -181,6 +184,9 @@
 			);
 			mainGroup = E2F134E52DDB9DCD00C44298;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E25BA22F2DDBE0B300D1CF94 /* XCRemoteSwiftPackageReference "PinLayout" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E2F134EF2DDB9DCD00C44298 /* Products */;
 			projectDirPath = "";
@@ -441,6 +447,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E25BA22F2DDBE0B300D1CF94 /* XCRemoteSwiftPackageReference "PinLayout" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/layoutBox/PinLayout";
+			requirement = {
+				kind = exactVersion;
+				version = 1.10.5;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E25BA2302DDBE0B300D1CF94 /* PinLayout */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E25BA22F2DDBE0B300D1CF94 /* XCRemoteSwiftPackageReference "PinLayout" */;
+			productName = PinLayout;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E2F134E62DDB9DCD00C44298 /* Project object */;
 }
