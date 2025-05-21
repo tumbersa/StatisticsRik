@@ -7,8 +7,14 @@
 
 import Foundation
 import RxSwift
+import Core
 
-public final class Fetcher {
+public protocol IFetcher {
+    func fetchUsers() -> Observable<UsersEntry>
+    func fetchStatistics() -> Observable<StatisticsEntry>
+}
+
+public final class Fetcher: IFetcher {
     private lazy var decoder = JSONDecoder()
 
     public init() {}
@@ -32,41 +38,41 @@ public final class Fetcher {
 
 private extension Fetcher {
     func fetch<T: Decodable>(url: URL) -> Observable<T> {
-       Observable.create { [weak self] observer in
-           let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-               guard let self else { return }
-               if let error {
-                   observer.onError(NetworkError.error(error))
-                   return
-               }
+        Observable.create { [weak self] observer in
+            let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+                guard let self else { return }
+                if let error {
+                    observer.onError(NetworkError.error(error))
+                    return
+                }
 
-               guard let response = response as? HTTPURLResponse,
-                     200..<300 ~= response.statusCode else {
-                   let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
-                   observer.onError(NetworkError.statusCode(statusCode))
-                   return
-               }
+                guard let response = response as? HTTPURLResponse,
+                      200..<300 ~= response.statusCode else {
+                    let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+                    observer.onError(NetworkError.statusCode(statusCode))
+                    return
+                }
 
-               guard let data, !data.isEmpty else {
-                   observer.onError(NetworkError.emptyData)
-                   return
-               }
+                guard let data, !data.isEmpty else {
+                    observer.onError(NetworkError.emptyData)
+                    return
+                }
 
-               do {
-                   let decodedObject = try self.decoder.decode(T.self, from: data)
-                   observer.onNext(decodedObject)
-                   observer.onCompleted()
-               } catch {
-                   observer.onError(NetworkError.decodingFailed(error))
-               }
+                do {
+                    let decodedObject = try self.decoder.decode(T.self, from: data)
+                    observer.onNext(decodedObject)
+                    observer.onCompleted()
+                } catch {
+                    observer.onError(NetworkError.decodingFailed(error))
+                }
 
-           }
+            }
 
-           task.resume()
+            task.resume()
 
-           return Disposables.create {
-               task.cancel()
-           }
-       }
-   }
+            return Disposables.create {
+                task.cancel()
+            }
+        }
+    }
 }

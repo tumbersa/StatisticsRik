@@ -5,6 +5,7 @@
 //  Created by Глеб Капустин on 19.05.2025.
 //
 
+import Core
 import UIKit
 import OSLog
 

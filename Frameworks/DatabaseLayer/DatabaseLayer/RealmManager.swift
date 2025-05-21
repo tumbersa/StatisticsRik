@@ -7,16 +7,31 @@
 
 import Foundation
 import RealmSwift
+import Core
 
-public final class RealmManager {
-    private let realm = try! Realm()
+public protocol IRealmManager {
+    func getObjects<T: Object>() -> [T]
+    func saveObject(_ entity: Object)
+}
+
+public final class RealmManager: IRealmManager {
+
     public init() {}
 
-//    func saveUsers(_ usersEntry: UsersEntry) {
-//        usersEntry.users.map { user in
-//            let userEntity = UserEntity()
-//
-//            return userEntity
-//        }
-//    }
+    public func getObjects<T: Object>() -> [T] {
+        let realm = try! Realm()
+        return Array(realm.objects(T.self))
+    }
+
+    public func saveObject(_ entity: Object) {
+        let realm = try! Realm()
+        do {
+            try realm.write {
+                realm.add(entity, update: .modified)
+            }
+        } catch {
+            AppLogger.shared.logError(error.localizedDescription)
+        }
+    }
+
 }

@@ -7,8 +7,8 @@
 
 import OSLog
 
-final class AppLogger {
-    static let shared = AppLogger()
+public final class AppLogger {
+    public static let shared = AppLogger()
 
     private let logger: Logger
 
@@ -19,23 +19,23 @@ final class AppLogger {
         )
     }
 
-    func logError(_ message: String) {
+    public func logError(_ message: String) {
         logger.error("🔴 \(message)")
     }
 
-    func logInfo(_ message: String) {
+    public func logInfo(_ message: String) {
         logger.info("ℹ️ \(message)")
     }
 
-    func logDebug(_ message: String) {
+    public func logDebug(_ message: String) {
         logger.debug("🔍 \(message)")
     }
 
-    func logWarning(_ message: String) {
+    public func logWarning(_ message: String) {
         logger.warning("⚠️ \(message)")
     }
 
-    func logSuccess(_ message: String) {
+    public func logSuccess(_ message: String) {
         logger.notice("✅ \(message)")
     }
 }

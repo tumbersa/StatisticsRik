@@ -9,13 +9,13 @@ import Foundation
 
 // MARK: - StatisticsEntry
 public struct StatisticsEntry: Codable {
-    let statistics: [Statistic]
+    public let statistics: [Statistic]
 
     // MARK: - Statistic
     public struct Statistic: Codable {
-        let userID: Int
-        let type: String
-        let dates: [Int]
+        public let userID: Int
+        public let type: String
+        public let dates: [Int]
 
         enum CodingKeys: String, CodingKey {
             case userID = "user_id"
