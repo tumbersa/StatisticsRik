@@ -22,7 +22,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             fetcher: Fetcher(),
             realmManager: RealmManager()
         )
-        window?.rootViewController = UINavigationController(rootViewController: viewController)
+        window?.rootViewController = viewController
         window?.makeKeyAndVisible()
     }
 
