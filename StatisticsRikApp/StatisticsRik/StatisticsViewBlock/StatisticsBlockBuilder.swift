@@ -15,7 +15,12 @@ final class StatisticsBlockBuilder {
 
     private init() {}
 
-    func buildBlocks(for users: [UserModel], statistics: [StatisticsModel]) -> [StatisticsViewBlock] {
+    func buildBlocks(
+        for users: [UserModel],
+        statistics: [StatisticsModel],
+        diagramFilterItems: [String],
+        roundedDiagramFilterItems: [String]
+    ) -> [StatisticsViewBlock] {
         var blocks: [StatisticsViewBlock] = []
         blocks.append(.empty(height: 48))
         blocks.append(headerBlock())
@@ -27,7 +32,7 @@ final class StatisticsBlockBuilder {
         blocks.append(growthMonthVisitorsBlock(growth: growth, height: 98, isFirst: true, isLast: true))
 
         blocks.append(.empty(height: 28))
-        blocks.append(.filter(height: 32))
+        blocks.append(.filter(height: 32, items: diagramFilterItems))
         blocks.append(.empty(height: 12))
         blocks.append(.diagramVisitors(height: 208))
 
@@ -39,7 +44,7 @@ final class StatisticsBlockBuilder {
         blocks.append(.empty(height: 28))
         blocks.append(labelBlock(text: "Пол и Возраст"))
         blocks.append(.empty(height: 12))
-        blocks.append(.filter(height: 32))
+        blocks.append(.filter(height: 32, items: roundedDiagramFilterItems))
         blocks.append(.empty(height: 12))
         blocks.append(.roundedDiagramVisitors(height: 529))
 

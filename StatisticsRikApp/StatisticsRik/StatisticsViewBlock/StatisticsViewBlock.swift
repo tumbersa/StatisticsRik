@@ -11,7 +11,7 @@ enum StatisticsViewBlock {
     case empty(height: CGFloat)
     case label(model: LabelCellModel)
     case monthVisitors(model: MonthVisitorsCellModel)
-    case filter(height: CGFloat)
+    case filter(height: CGFloat, items: [String])
     case diagramVisitors(height: CGFloat)
     case visitor(model: VisitorCellModel)
     case roundedDiagramVisitors(height: CGFloat)

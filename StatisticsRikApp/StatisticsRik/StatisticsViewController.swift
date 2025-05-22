@@ -14,6 +14,9 @@ import DatabaseLayer
 
 final class StatisticsViewController: UIViewController {
 
+    private let diagramFilterItems = ["По дням", "По неделям", "По месяцам"]
+    private let roundedDiagramFilterItems = ["Сегодня", "Неделя", "Месяц", "Все время"]
+
     private let bag = DisposeBag()
     private var users: [UserModel] = []
     private var statistics: [StatisticsModel] = []
@@ -30,6 +33,7 @@ final class StatisticsViewController: UIViewController {
         tableView.register(LabelTableViewCell.self)
         tableView.register(MonthVisitorsTableViewCell.self)
         tableView.register(VisitorTableViewCell.self)
+        tableView.register(FilterTableViewCell.self)
         view.addSubview(tableView)
         return tableView
     }()
@@ -98,7 +102,12 @@ private extension StatisticsViewController {
     }
 
     func reloadData() {
-        let blocks = StatisticsBlockBuilder.shared.buildBlocks(for: users, statistics: statistics)
+        let blocks = StatisticsBlockBuilder.shared.buildBlocks(
+            for: users,
+            statistics: statistics,
+            diagramFilterItems: diagramFilterItems,
+            roundedDiagramFilterItems: roundedDiagramFilterItems
+        )
         self.blocks = blocks
 
         tableView.reloadData()
@@ -117,7 +126,12 @@ private extension StatisticsViewController {
     }
 
     func reloadVisitors() {
-        let blocks = StatisticsBlockBuilder.shared.buildBlocks(for: users, statistics: statistics)
+        let blocks = StatisticsBlockBuilder.shared.buildBlocks(
+            for: users,
+            statistics: statistics,
+            diagramFilterItems: diagramFilterItems,
+            roundedDiagramFilterItems: roundedDiagramFilterItems
+        )
         self.blocks = blocks
         let indexPaths = blocks.enumerated()
             .compactMap { index, block in
@@ -142,7 +156,6 @@ extension StatisticsViewController: UITableViewDataSource {
         let block = blocks[indexPath.row]
         switch block {
             case
-                    .filter,
                     .diagramVisitors,
                     .roundedDiagramVisitors:
                 return UITableViewCell()
@@ -161,6 +174,10 @@ extension StatisticsViewController: UITableViewDataSource {
                 let cell: VisitorTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.set(model: model)
                 return cell
+            case .filter(model: let model):
+                let cell: FilterTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.set(items: model.items)
+                return cell
         }
     }
 
@@ -174,7 +191,6 @@ extension StatisticsViewController: UITableViewDelegate {
         switch block {
             case
                     .empty(let height),
-                    .filter(let height),
                     .diagramVisitors(let height),
                     .roundedDiagramVisitors(let height):
                 return height
@@ -183,6 +199,8 @@ extension StatisticsViewController: UITableViewDelegate {
             case .monthVisitors(let model):
                 return model.height
             case .visitor(let model):
+                return model.height
+            case .filter(let model):
                 return model.height
         }
     }

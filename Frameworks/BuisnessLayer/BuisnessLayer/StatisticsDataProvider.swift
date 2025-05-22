@@ -89,14 +89,14 @@ public final class StatisticsDataProvider: IStatisticsDataProvider {
     public func loadAvatarImageData(users: [UserModel]) -> Observable<[UserModel]> {
         let observables: [Observable<(String, Data)>] = users.map { user in
             guard let urlString = user.files.first(where: { $0.type == .avatar })?.url else {
-                AppLogger.shared.logWarning("URL для аватара пользователя \(user.id) не найден.")
+                AppLogger.shared.logWarning("Avatar URL not found for user \(user.id).")
                 return Observable.just((String(user.id), Data()))
             }
 
             return imageFetcher.fetchImageData(from: urlString)
                 .map { data in (String(user.id), data) }
                 .catch { error in
-                    AppLogger.shared.logError("Ошибка загрузки аватара для пользователя \(user.id): \(error.localizedDescription)")
+                    AppLogger.shared.logError("Failed to load avatar for user \(user.id): \(error.localizedDescription)")
                     return .just((String(user.id), Data()))
                 }
         }
@@ -117,7 +117,7 @@ public final class StatisticsDataProvider: IStatisticsDataProvider {
                     realmManager.updateUser(id: user.id, avatarImageData: data)
                 }
             }, onError: { error in
-                AppLogger.shared.logError("Ошибка загрузки аватаров: \(error.localizedDescription)")
+                AppLogger.shared.logError("Failed to load avatars: \(error.localizedDescription)")
             })
     }
 
