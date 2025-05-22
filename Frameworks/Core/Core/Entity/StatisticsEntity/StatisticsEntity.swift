@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 public class StatisticsEntity: Object {
-    @Persisted(primaryKey: true) public var id: Int
+    @Persisted public var id: Int
     @Persisted public var type: String
     @Persisted public var dates: List<String>
 

@@ -10,6 +10,7 @@ import BuisnessLayer
 import RxSwift
 import Core
 import PinLayout
+import DatabaseLayer
 
 final class StatisticsViewController: UIViewController {
 
@@ -26,17 +27,26 @@ final class StatisticsViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(EmptyTableViewCell.self)
+        tableView.register(LabelTableViewCell.self)
+        tableView.register(MonthVisitorsTableViewCell.self)
+        tableView.register(VisitorTableViewCell.self)
         view.addSubview(tableView)
         return tableView
     }()
+
+    private let refreshControl = UIRefreshControl()
 
     var statisticsDataProvider: IStatisticsDataProvider?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+//        RealmManager().deleteDatabaseFiles()
+//        RealmManager().clearDatabase()
         loadData()
+
         view.backgroundColor = Colors.background
-        tableView.refreshControl = UIRefreshControl()
+        tableView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -59,18 +69,65 @@ private extension StatisticsViewController {
         Observable.zip(usersObservable, statisticsObservable)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] users, statistics in
-                // TODO: - убрать принты
-                print(users)
-                print(statistics)
                 self?.users = users
                 self?.statistics = statistics
-
-                let blocks = StatisticsBlockBuilder.buildBlocks(for: users, statistics: statistics)
-                self?.blocks = blocks
-
-                self?.tableView.reloadData()
+                self?.loadAvatarImageData()
+                self?.reloadData()
             })
             .disposed(by: bag)
+    }
+
+    @objc
+    func refresh() {
+        guard let provider = statisticsDataProvider else { return }
+
+        let usersObservable = provider.fetchRemoteUsers()
+        let statisticsObservable = provider.fetchRemoteStatistics()
+
+        Observable.zip(usersObservable, statisticsObservable)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] users, statistics in
+                self?.users = users
+                self?.statistics = statistics
+                self?.loadAvatarImageData()
+
+                self?.reloadData()
+                self?.refreshControl.endRefreshing()
+            })
+            .disposed(by: bag)
+    }
+
+    func reloadData() {
+        let blocks = StatisticsBlockBuilder.shared.buildBlocks(for: users, statistics: statistics)
+        self.blocks = blocks
+
+        tableView.reloadData()
+    }
+
+    func loadAvatarImageData() {
+        let usersModel = TopUsersProvider.topViewedUsers(users: users, statistics: statistics)
+        statisticsDataProvider?.loadAvatarImageData(users: usersModel)
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] users in
+                self?.users = users
+
+                self?.reloadVisitors()
+            })
+            .disposed(by: bag)
+    }
+
+    func reloadVisitors() {
+        let blocks = StatisticsBlockBuilder.shared.buildBlocks(for: users, statistics: statistics)
+        self.blocks = blocks
+        let indexPaths = blocks.enumerated()
+            .compactMap { index, block in
+                if case .visitor = block {
+                    return IndexPath(row: index, section: 0)
+                } else {
+                    return nil
+                }
+            }
+        tableView.reloadRows(at: indexPaths, with: .automatic)
     }
 
 }
@@ -85,15 +142,24 @@ extension StatisticsViewController: UITableViewDataSource {
         let block = blocks[indexPath.row]
         switch block {
             case
-                    .label,
-                    .monthVisitors,
                     .filter,
                     .diagramVisitors,
-                    .visitor,
                     .roundedDiagramVisitors:
                 return UITableViewCell()
             case .empty:
                 let cell: EmptyTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                return cell
+            case .label(let model):
+                let cell: LabelTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.set(model: model)
+                return cell
+            case .monthVisitors(let model):
+                let cell: MonthVisitorsTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.set(model: model)
+                return cell
+            case .visitor(let model):
+                let cell: VisitorTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.set(model: model)
                 return cell
         }
     }
@@ -108,13 +174,15 @@ extension StatisticsViewController: UITableViewDelegate {
         switch block {
             case
                     .empty(let height),
-                    .monthVisitors(let height),
                     .filter(let height),
                     .diagramVisitors(let height),
-                    .visitor(let height),
                     .roundedDiagramVisitors(let height):
                 return height
             case .label(let model):
+                return model.height
+            case .monthVisitors(let model):
+                return model.height
+            case .visitor(let model):
                 return model.height
         }
     }

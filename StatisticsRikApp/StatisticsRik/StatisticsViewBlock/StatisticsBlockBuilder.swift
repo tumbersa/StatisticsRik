@@ -7,38 +7,48 @@
 
 import Foundation
 import Core
+import BuisnessLayer
 
 final class StatisticsBlockBuilder {
 
-    static func buildBlocks(for user: [UserModel], statistics: [StatisticsModel]) -> [StatisticsViewBlock] {
+    static let shared = StatisticsBlockBuilder()
+
+    private init() {}
+
+    func buildBlocks(for users: [UserModel], statistics: [StatisticsModel]) -> [StatisticsViewBlock] {
         var blocks: [StatisticsViewBlock] = []
         blocks.append(.empty(height: 48))
         blocks.append(headerBlock())
         blocks.append(.empty(height: 32))
         blocks.append(labelBlock(text: "Посетители"))
         blocks.append(.empty(height: 12))
-        blocks.append(.monthVisitors(height: 98))
+
+        let growth = MonthVisitorChangeCalculator.shared.calculateGrowth(statisticsModels: statistics)
+        blocks.append(growthMonthVisitorsBlock(growth: growth, height: 98, isFirst: true, isLast: true))
+
         blocks.append(.empty(height: 28))
         blocks.append(.filter(height: 32))
         blocks.append(.empty(height: 12))
         blocks.append(.diagramVisitors(height: 208))
+
         blocks.append(.empty(height: 28))
         blocks.append(labelBlock(text: "Чаще всех посещают Ваш профиль"))
         blocks.append(.empty(height: 12))
-        blocks.append(.visitor(height: 62))
-        blocks.append(.visitor(height: 62))
-        blocks.append(.visitor(height: 62))
+        blocks.append(contentsOf: visitorBlocks(users: users, statistics: statistics))
+
         blocks.append(.empty(height: 28))
         blocks.append(labelBlock(text: "Пол и Возраст"))
         blocks.append(.empty(height: 12))
         blocks.append(.filter(height: 32))
         blocks.append(.empty(height: 12))
         blocks.append(.roundedDiagramVisitors(height: 529))
+
         blocks.append(.empty(height: 28))
         blocks.append(labelBlock(text: "Наблюдатели"))
         blocks.append(.empty(height: 12))
-        blocks.append(.monthVisitors(height: 100))
-        blocks.append(.monthVisitors(height: 100))
+        blocks.append(growthMonthVisitorsBlock(growth: growth, height: 100, isFirst: true, isLast: false))
+        let decrease = MonthVisitorChangeCalculator.shared.calculateDecrease(statisticsModels: statistics)
+        blocks.append(decreaseMonthVisitorsBlock(decrease: decrease))
         blocks.append(.empty(height: 32))
         return blocks
     }
@@ -47,7 +57,7 @@ final class StatisticsBlockBuilder {
 
 private extension StatisticsBlockBuilder {
 
-    static func headerBlock() -> StatisticsViewBlock {
+    func headerBlock() -> StatisticsViewBlock {
         return .label(model: .init(
             text: "Статистика",
             height: 40,
@@ -55,7 +65,7 @@ private extension StatisticsBlockBuilder {
         ))
     }
 
-    static func labelBlock(text: String) -> StatisticsViewBlock {
+    func labelBlock(text: String) -> StatisticsViewBlock {
         return .label(model: .init(
             text: text,
             height: 24,
@@ -63,4 +73,47 @@ private extension StatisticsBlockBuilder {
         ))
     }
 
+    func growthMonthVisitorsBlock(growth: Int, height: CGFloat, isFirst: Bool, isLast: Bool) -> StatisticsViewBlock {
+
+        return .monthVisitors(model:  .init(
+            title: "\(growth)",
+            description: "Количество посетителей в этом месяце выросло",
+            titleImage: Images.arrowUp,
+            height: height,
+            isFirst: isFirst,
+            isLast: isLast
+        ))
+    }
+
+    func decreaseMonthVisitorsBlock(decrease: Int) -> StatisticsViewBlock {
+        return .monthVisitors(model:  .init(
+            title: "\(decrease)",
+            description: "Пользователей перестали за Вами наблюдать",
+            titleImage: Images.arrowDown,
+            height: 100,
+            isFirst: false,
+            isLast: true
+        ))
+    }
+
+    func visitorBlocks(users: [UserModel], statistics: [StatisticsModel]) -> [StatisticsViewBlock] {
+        let usersModel = TopUsersProvider.topViewedUsers(users: users, statistics: statistics)
+        return usersModel.enumerated().map { index, userModel in
+            let avatarUrl = userModel.files.filter { $0.type == .avatar }.map { $0.url }.first ?? ""
+            let isFirst = index == 0
+            let isLast = index == usersModel.count - 1
+
+            return StatisticsViewBlock.visitor(model: .init(
+                text: userModel.username + ", " + "\(userModel.age)",
+                isOnline: userModel.isOnline,
+                avatarImageData: userModel.avatarImageData,
+                imageUrl: avatarUrl,
+                isFirst: isFirst,
+                isLast: isLast,
+                height: 62
+            ))
+        }
+    }
+
 }
+

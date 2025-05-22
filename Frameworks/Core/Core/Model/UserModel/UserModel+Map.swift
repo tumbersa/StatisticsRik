@@ -13,7 +13,7 @@ public extension UserModel {
             UserFileModel(
                 id: file.id,
                 url: file.url,
-                type: file.type
+                type: UserFileType(rawValue: file.type) ?? .unknown
             )
         }
         self.init(
@@ -32,7 +32,7 @@ public extension UserModel {
             UserFileModel(
                 id: file.id,
                 url: file.url,
-                type: file.type
+                type: UserFileType(rawValue: file.type) ?? .unknown
             )
         }
         self.init(
@@ -43,6 +43,18 @@ public extension UserModel {
             age: userEntity.age,
             files: files,
             avatarImageData: userEntity.avatarImageData
+        )
+    }
+
+    func withAvatarImageData(_ data: Data) -> UserModel {
+        UserModel(
+            id: self.id,
+            sex: self.sex,
+            username: self.username,
+            isOnline: self.isOnline,
+            age: self.age,
+            files: self.files,
+            avatarImageData: data
         )
     }
 }

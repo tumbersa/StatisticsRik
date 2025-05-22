@@ -23,7 +23,7 @@ public extension UserEntity {
             let userFileEntity = UserFileEntity()
             userFileEntity.id = file.id
             userFileEntity.url = file.url
-            userFileEntity.type = file.type
+            userFileEntity.type = file.type.rawValue
             files.append(userFileEntity)
         }
         self.files = files

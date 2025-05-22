@@ -44,15 +44,20 @@ public enum SexModel: String {
 public struct UserFileModel {
     public let id: Int
     public let url: String
-    public let type: String
+    public let type: UserFileType
 
     public init(
         id: Int,
         url: String,
-        type: String
+        type: UserFileType
     ) {
         self.id = id
         self.url = url
         self.type = type
     }
+}
+
+public enum UserFileType: String {
+    case avatar
+    case unknown
 }

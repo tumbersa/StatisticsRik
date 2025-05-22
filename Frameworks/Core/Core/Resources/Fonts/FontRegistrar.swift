@@ -21,16 +21,32 @@ public final class FontRegistrar {
 private extension FontRegistrar {
 
     static func registerFont(named fontName: String) {
-        guard let fontURL = Bundle.main.url(forResource: fontName, withExtension: "ttf") else {
-            AppLogger.shared.logError("Файл шрифта \(fontName) не найден")
+        guard let coreBundle = Bundle(identifier: "kapustin.Core") else {
+            AppLogger.shared.logError("Core framework bundle not found")
             return
         }
 
-        var error: Unmanaged<CFError>?
-        if !CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error) {
-            let errorDescription = error?.takeUnretainedValue().localizedDescription ?? "Unknown error"
-            AppLogger.shared.logError("Ошибка регистрации шрифта \(fontName): \(errorDescription)")
-        }
+        registerFont(named: fontName, in: coreBundle)
     }
+
+    private static func registerFont(named fontName: String, in bundle: Bundle) {
+            let fontExtensions = ["ttf", "otf"]
+
+            for ext in fontExtensions {
+                if let fontURL = bundle.url(forResource: fontName, withExtension: ext) {
+                    var error: Unmanaged<CFError>?
+                    if CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error) {
+                        AppLogger.shared.logSuccess("Successfully registered font: \(fontName)")
+                        return
+                    } else {
+                        let errorDescription = error?.takeUnretainedValue().localizedDescription ?? "Unknown error"
+                        AppLogger.shared.logError("Failed to register font \(fontName): \(errorDescription)")
+                        return
+                    }
+                }
+            }
+
+            AppLogger.shared.logError("Font file \(fontName) not found in bundle")
+        }
 
 }

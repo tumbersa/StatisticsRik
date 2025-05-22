@@ -10,9 +10,9 @@ import Foundation
 enum StatisticsViewBlock {
     case empty(height: CGFloat)
     case label(model: LabelCellModel)
-    case monthVisitors(height: CGFloat)
+    case monthVisitors(model: MonthVisitorsCellModel)
     case filter(height: CGFloat)
     case diagramVisitors(height: CGFloat)
-    case visitor(height: CGFloat)
+    case visitor(model: VisitorCellModel)
     case roundedDiagramVisitors(height: CGFloat)
 }
