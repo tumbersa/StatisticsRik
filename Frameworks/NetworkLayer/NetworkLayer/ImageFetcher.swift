@@ -18,7 +18,7 @@ public final class ImageFetcher {
         }
 
         return Observable.create { [weak self] observer in
-            let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            let task = URLSession.shared.dataTask(with: url) { data, response, error in
                 if let error {
                     observer.onError(NetworkError.error(error))
                     return

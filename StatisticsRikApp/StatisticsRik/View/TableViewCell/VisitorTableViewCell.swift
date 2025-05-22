@@ -154,7 +154,7 @@ private extension VisitorTableViewCell {
 
     func configureDivider() {
         containerView.addSubview(divider)
-        divider.pin.bottom().left(to: userLabel.edge.left).right(1).height(1)
+        divider.pin.bottom().left(to: userLabel.edge.left).right(1).height(0.5)
     }
 
     func configureAppearance() {

@@ -14,5 +14,5 @@ enum StatisticsViewBlock {
     case filter(height: CGFloat, items: [String])
     case diagramVisitors(height: CGFloat)
     case visitor(model: VisitorCellModel)
-    case roundedDiagramVisitors(height: CGFloat)
+    case roundedDiagramVisitors(height: CGFloat, models: [RoundedDiagramCellModel])
 }

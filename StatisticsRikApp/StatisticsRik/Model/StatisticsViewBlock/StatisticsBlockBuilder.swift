@@ -46,7 +46,7 @@ final class StatisticsBlockBuilder {
         blocks.append(.empty(height: 12))
         blocks.append(.filter(height: 32, items: roundedDiagramFilterItems))
         blocks.append(.empty(height: 12))
-        blocks.append(.roundedDiagramVisitors(height: 529))
+        blocks.append(roundedDiagramVisitorsBlock(users: users, statistics: statistics))
 
         blocks.append(.empty(height: 28))
         blocks.append(labelBlock(text: "Наблюдатели"))
@@ -118,6 +118,31 @@ private extension StatisticsBlockBuilder {
                 height: 62
             ))
         }
+    }
+
+    func roundedDiagramVisitorsBlock(users: [UserModel],
+                                     statistics: [StatisticsModel]) -> StatisticsViewBlock {
+        let viewStatistics = statistics.filter{ $0.type == .view }
+        var models: [RoundedDiagramCellModel] = []
+
+        for statistic in viewStatistics {
+            guard let user = users.first(where: { $0.id == statistic.id }) else {
+                continue
+            }
+
+            let userModels = statistic.dates.map { date in
+                RoundedDiagramCellModel(
+                    userId: user.id,
+                    date: date,
+                    sex: user.sex,
+                    age: user.age
+                )
+            }
+
+            models.append(contentsOf: userModels)
+        }
+
+        return .roundedDiagramVisitors(height: 529, models: models)
     }
 
 }

@@ -77,6 +77,11 @@ extension FilterTableViewCell: UICollectionViewDataSource {
 
 extension FilterTableViewCell: UICollectionViewDelegate {
 
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let item = items[indexPath.item]
+        onItemSelected?(item)
+    }
+
 }
 
 extension FilterTableViewCell: UICollectionViewDelegateFlowLayout {

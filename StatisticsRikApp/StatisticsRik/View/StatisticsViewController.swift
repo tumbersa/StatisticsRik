@@ -14,8 +14,11 @@ import DatabaseLayer
 
 final class StatisticsViewController: UIViewController {
 
-    private let diagramFilterItems = ["По дням", "По неделям", "По месяцам"]
-    private let roundedDiagramFilterItems = ["Сегодня", "Неделя", "Месяц", "Все время"]
+    private let diagramFilterItems = FilterPeriod.allCases
+    private let roundedDiagramFilterItems = FilterPeriod.Extended.allCases
+
+    private var currentFilteredPeriod: FilterPeriod = .today
+    private var currentExtendedFilteredPeriod: FilterPeriod.Extended = .today
 
     private let bag = DisposeBag()
     private var users: [UserModel] = []
@@ -34,6 +37,7 @@ final class StatisticsViewController: UIViewController {
         tableView.register(MonthVisitorsTableViewCell.self)
         tableView.register(VisitorTableViewCell.self)
         tableView.register(FilterTableViewCell.self)
+        tableView.register(RoundedDiagramTableViewCell.self)
         view.addSubview(tableView)
         return tableView
     }()
@@ -105,8 +109,8 @@ private extension StatisticsViewController {
         let blocks = StatisticsBlockBuilder.shared.buildBlocks(
             for: users,
             statistics: statistics,
-            diagramFilterItems: diagramFilterItems,
-            roundedDiagramFilterItems: roundedDiagramFilterItems
+            diagramFilterItems: diagramFilterItems.map{ $0.rawValue },
+            roundedDiagramFilterItems: roundedDiagramFilterItems.map{ $0.rawValue }
         )
         self.blocks = blocks
 
@@ -129,8 +133,8 @@ private extension StatisticsViewController {
         let blocks = StatisticsBlockBuilder.shared.buildBlocks(
             for: users,
             statistics: statistics,
-            diagramFilterItems: diagramFilterItems,
-            roundedDiagramFilterItems: roundedDiagramFilterItems
+            diagramFilterItems: diagramFilterItems.map{ $0.rawValue },
+            roundedDiagramFilterItems: roundedDiagramFilterItems.map{ $0.rawValue }
         )
         self.blocks = blocks
         let indexPaths = blocks.enumerated()
@@ -141,6 +145,33 @@ private extension StatisticsViewController {
                     return nil
                 }
             }
+        tableView.reloadRows(at: indexPaths, with: .automatic)
+    }
+
+    func handleFilterSelection(_ selectedItem: String, in tableView: UITableView) {
+        var indexPaths: [IndexPath] = []
+        if let period = FilterPeriod(rawValue: selectedItem) {
+            currentFilteredPeriod = period
+            indexPaths = blocks.enumerated()
+                .compactMap { index, block in
+                    if case .diagramVisitors = block {
+                        return IndexPath(row: index, section: 0)
+                    } else {
+                        return nil
+                    }
+                }
+        } else if let extendedPeriod = FilterPeriod.Extended(rawValue: selectedItem) {
+            currentExtendedFilteredPeriod = extendedPeriod
+            indexPaths = blocks.enumerated()
+                .compactMap { index, block in
+                    if case .roundedDiagramVisitors = block {
+                        return IndexPath(row: index, section: 0)
+                    } else {
+                        return nil
+                    }
+                }
+        }
+
         tableView.reloadRows(at: indexPaths, with: .automatic)
     }
 
@@ -156,27 +187,40 @@ extension StatisticsViewController: UITableViewDataSource {
         let block = blocks[indexPath.row]
         switch block {
             case
-                    .diagramVisitors,
-                    .roundedDiagramVisitors:
+                    .diagramVisitors:
                 return UITableViewCell()
+
             case .empty:
                 let cell: EmptyTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 return cell
+
             case .label(let model):
                 let cell: LabelTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.set(model: model)
                 return cell
+
             case .monthVisitors(let model):
                 let cell: MonthVisitorsTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.set(model: model)
                 return cell
+
             case .visitor(let model):
                 let cell: VisitorTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.set(model: model)
                 return cell
+
             case .filter(model: let model):
                 let cell: FilterTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.set(items: model.items)
+                cell.onItemSelected = { [weak self] selectedItem in
+                    self?.handleFilterSelection(selectedItem, in: tableView)
+                }
+                return cell
+
+            case .roundedDiagramVisitors(_, models: let models):
+                let cell: RoundedDiagramTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                let filteredModels = DiagramFilterService.filterModels(models, by: currentExtendedFilteredPeriod)
+                cell.set(models: filteredModels)
                 return cell
         }
     }
@@ -191,8 +235,7 @@ extension StatisticsViewController: UITableViewDelegate {
         switch block {
             case
                     .empty(let height),
-                    .diagramVisitors(let height),
-                    .roundedDiagramVisitors(let height):
+                    .diagramVisitors(let height):
                 return height
             case .label(let model):
                 return model.height
@@ -200,7 +243,9 @@ extension StatisticsViewController: UITableViewDelegate {
                 return model.height
             case .visitor(let model):
                 return model.height
-            case .filter(let model):
+            case .filter(model: let model):
+                return model.height
+            case .roundedDiagramVisitors(model: let model):
                 return model.height
         }
     }

@@ -119,7 +119,7 @@ private extension MonthVisitorsTableViewCell {
 
     func configureDivider() {
         containerView.addSubview(divider)
-        divider.pin.bottom(-2.5).left().right().height(1)
+        divider.pin.bottom(-2).left().right().height(0.5)
     }
 
     func configureAppearance() {
