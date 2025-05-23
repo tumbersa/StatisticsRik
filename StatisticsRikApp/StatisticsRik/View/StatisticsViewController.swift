@@ -17,7 +17,7 @@ final class StatisticsViewController: UIViewController {
     private let diagramFilterItems = FilterPeriod.allCases
     private let roundedDiagramFilterItems = FilterPeriod.Extended.allCases
 
-    private var currentFilteredPeriod: FilterPeriod = .today
+    private var currentFilteredPeriod: FilterPeriod = .day
     private var currentExtendedFilteredPeriod: FilterPeriod.Extended = .today
 
     private let bag = DisposeBag()
@@ -38,6 +38,7 @@ final class StatisticsViewController: UIViewController {
         tableView.register(VisitorTableViewCell.self)
         tableView.register(FilterTableViewCell.self)
         tableView.register(RoundedDiagramTableViewCell.self)
+        tableView.register(DiagramVisitorsTableViewCell.self)
         view.addSubview(tableView)
         return tableView
     }()
@@ -186,10 +187,6 @@ extension StatisticsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let block = blocks[indexPath.row]
         switch block {
-            case
-                    .diagramVisitors:
-                return UITableViewCell()
-
             case .empty:
                 let cell: EmptyTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 return cell
@@ -222,6 +219,11 @@ extension StatisticsViewController: UITableViewDataSource {
                 let filteredModels = DiagramFilterService.filterModels(models, by: currentExtendedFilteredPeriod)
                 cell.set(models: filteredModels)
                 return cell
+            case .diagramVisitors(_, models: let models):
+                let cell: DiagramVisitorsTableViewCell = tableView.dequeueReusableCell(for: indexPath)
+                let filteredModels = DiagramFilterService.filterModels(models, by: currentFilteredPeriod)
+                cell.set(models: filteredModels, currentFilteredPeriod: currentFilteredPeriod)
+                return cell
         }
     }
 
@@ -234,8 +236,7 @@ extension StatisticsViewController: UITableViewDelegate {
 
         switch block {
             case
-                    .empty(let height),
-                    .diagramVisitors(let height):
+                    .empty(let height):
                 return height
             case .label(let model):
                 return model.height
@@ -245,8 +246,10 @@ extension StatisticsViewController: UITableViewDelegate {
                 return model.height
             case .filter(model: let model):
                 return model.height
-            case .roundedDiagramVisitors(model: let model):
-                return model.height
+            case .roundedDiagramVisitors(let height, _):
+                return height
+            case .diagramVisitors(let height, _):
+                return height
         }
     }
 

@@ -46,11 +46,13 @@ private extension CubicDiagramView {
 
         let dynamicPadding = calculateDynamicPadding(for: maxDifference)
         let xStep = frame.width / CGFloat(max(values.count - 1, 1))
-        let yCoefficient = (frame.height - dynamicPadding * 2) / (maxDifference == 0 ? 2 : maxDifference)
+        let usableHeight = frame.height - dynamicPadding * 2
+        let yCoefficient = maxDifference > 0 ? usableHeight / maxDifference : 0
 
         return values.enumerated().map { index, value in
+            let normalizedValue = CGFloat(CGFloat(value) - minVal)
             let x = CGFloat(index) * xStep
-            let y = frame.height - dynamicPadding - CGFloat(value) * yCoefficient
+            let y = frame.height - dynamicPadding - normalizedValue * yCoefficient
             return CGPoint(x: x, y: y)
         }
     }

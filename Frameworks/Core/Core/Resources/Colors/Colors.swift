@@ -15,9 +15,12 @@ public enum Colors {
     public static let green2 = UIColor(resource: .green2)
     public static let white = UIColor(resource: .white1)
     public static let gray = UIColor(resource: .gray1)
+    public static let gray2 = UIColor(resource: .gray2)
+    public static let gray3 = UIColor(resource: .gray3)
     public static let red = UIColor(resource: .red1)
     public static let red2 = UIColor(resource: .red2)
     public static let black = UIColor(resource: .black1)
     public static let apricot = UIColor(resource: .apricot)
     public static let shadowCurve = UIColor(resource: .shadowCurve)
+    public static let silver = UIColor(resource: .silver)
 }

@@ -43,7 +43,7 @@ final class StatisticsBlockBuilder {
         blocks.append(.empty(height: 28))
         blocks.append(.filter(height: 32, items: diagramFilterItems))
         blocks.append(.empty(height: 12))
-        blocks.append(.diagramVisitors(height: 208))
+        blocks.append(diagramVisitorsBlock(statistics: statistics))
 
         blocks.append(.empty(height: 28))
         blocks.append(labelBlock(text: "Чаще всех посещают Ваш профиль"))
@@ -166,6 +166,22 @@ private extension StatisticsBlockBuilder {
         }
 
         return .roundedDiagramVisitors(height: 529, models: models)
+    }
+
+    func diagramVisitorsBlock(statistics: [StatisticsModel]) -> StatisticsViewBlock {
+        let viewStatistics = statistics.filter { $0.type == .view }
+
+        let models = viewStatistics.reduce(into: [DiagramVisitorsCellModel]()) { result, statistic in
+            let diagramModels = statistic.dates.map { date in
+                DiagramVisitorsCellModel(
+                    userId: statistic.id,
+                    date: date
+                )
+            }
+            result.append(contentsOf: diagramModels)
+        }
+
+        return .diagramVisitors(height: 208, models: models)
     }
 
 }
