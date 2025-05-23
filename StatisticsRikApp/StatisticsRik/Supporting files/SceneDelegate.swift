@@ -19,6 +19,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         let viewController = StatisticsViewController()
         viewController.statisticsDataProvider = StatisticsDataProvider(
+            imageFetcher: ImageFetcher(),
             fetcher: Fetcher(),
             realmManager: RealmManager()
         )

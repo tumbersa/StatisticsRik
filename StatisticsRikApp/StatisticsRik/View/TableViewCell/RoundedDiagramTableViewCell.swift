@@ -9,7 +9,7 @@ import Foundation
 import Core
 import UIKit
 
-final class RoundedDiagramTableViewCell: UITableViewCell, ReusableView {
+final class RoundedDiagramTableViewCell: UITableViewCell {
 
     private let rangesAge: [String] = [
         "18-21", "22-25", "26-30", "31-35", "36-40", "40-50", ">50"
@@ -22,7 +22,7 @@ final class RoundedDiagramTableViewCell: UITableViewCell, ReusableView {
         return containerView
     }()
 
-    private lazy var diagramView: UIView = UIView()
+    private lazy var diagramView = CircularDiagramView()
 
     private lazy var menGenderStatsView = GenderStatsView()
     private lazy var womenGenderStatsView = GenderStatsView()
@@ -63,6 +63,7 @@ final class RoundedDiagramTableViewCell: UITableViewCell, ReusableView {
         0 :
         Int(Double(models.filter{ $0.sex == .women }.count) / Double(models.count) * 100)
         womenGenderStatsView.set(circleColor: Colors.apricot, gender: "Женщины", percent: "\(womenPercent)%")
+        diagramView.setProgress(CGFloat(Double(womenPercent) / 100))
 
         for (index, gropedModels) in groupModelsByAgeRange(models: models).enumerated() {
             let ageStatsView = AgeStatsView()
@@ -90,7 +91,6 @@ private extension RoundedDiagramTableViewCell {
         containerView.pin.all().marginHorizontal(16)
 
         containerView.addSubview(diagramView)
-        diagramView.backgroundColor = .red
         diagramView.pin.top(21).hCenter().width(152).height(151)
 
         containerView.addSubview(menGenderStatsView)

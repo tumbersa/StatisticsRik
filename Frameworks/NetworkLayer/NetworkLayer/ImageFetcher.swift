@@ -8,7 +8,11 @@
 import Foundation
 import RxSwift
 
-public final class ImageFetcher {
+public protocol IImageFetcher {
+    func fetchImageData(from urlString: String) -> Observable<Data>
+}
+
+public final class ImageFetcher: IImageFetcher {
 
     public init() {}
 
@@ -17,7 +21,7 @@ public final class ImageFetcher {
             return Observable.error(NetworkError.invalidUrl)
         }
 
-        return Observable.create { [weak self] observer in
+        return Observable.create { observer in
             let task = URLSession.shared.dataTask(with: url) { data, response, error in
                 if let error {
                     observer.onError(NetworkError.error(error))

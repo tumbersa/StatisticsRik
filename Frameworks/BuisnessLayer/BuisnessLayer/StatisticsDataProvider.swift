@@ -21,11 +21,12 @@ public protocol IStatisticsDataProvider {
 
 public final class StatisticsDataProvider: IStatisticsDataProvider {
 
-    private let imageFetcher = ImageFetcher()
+    private let imageFetcher: IImageFetcher
     private let fetcher: IFetcher
     private let realmManager: IRealmManager
 
-    public init(fetcher: IFetcher, realmManager: IRealmManager) {
+    public init(imageFetcher: IImageFetcher, fetcher: IFetcher, realmManager: IRealmManager) {
+        self.imageFetcher = imageFetcher
         self.fetcher = fetcher
         self.realmManager = realmManager
     }
