@@ -20,7 +20,7 @@ final class MonthVisitorsTableViewCell: UITableViewCell, ReusableView {
         return containerView
     }()
 
-    private lazy var diagramView = UIView()
+    private var diagramView: CubicDiagramView?
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -65,19 +65,21 @@ final class MonthVisitorsTableViewCell: UITableViewCell, ReusableView {
             .layerMinXMaxYCorner, .layerMaxXMaxYCorner
         ]
         divider.removeFromSuperview()
+        diagramView?.removeFromSuperview()
+        diagramView = nil
     }
 
     func set(model: MonthVisitorsCellModel) {
-        defer {
-            pinViews()
-        }
         titleImageView.image = model.titleImage
         descriptionLabel.text = model.description
         titleLabel.text = model.title
 
         switch (model.isFirst, model.isLast) {
             case (true, true):
-                return
+                containerView.layer.maskedCorners = [
+                    .layerMinXMinYCorner, .layerMaxXMinYCorner,
+                    .layerMinXMaxYCorner, .layerMaxXMaxYCorner
+                ]
             case (true, false):
                 containerView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
                 configureDivider()
@@ -87,6 +89,10 @@ final class MonthVisitorsTableViewCell: UITableViewCell, ReusableView {
                 containerView.layer.maskedCorners = []
                 configureDivider()
         }
+
+        diagramView = CubicDiagramView()
+        pinViews()
+        diagramView?.set(values: model.monthVisiotsChange, diagramColor: model.diagramColor)
 
     }
 
@@ -98,9 +104,11 @@ private extension MonthVisitorsTableViewCell {
         contentView.addSubview(containerView)
         containerView.pin.all().marginHorizontal(16)
 
+
+        guard let diagramView else { return }
         containerView.addSubview(diagramView)
-        diagramView.backgroundColor = .red
         diagramView.pin.left().top().bottom().width(95).margin(16, 20, 16, 0)
+        print(diagramView.frame)
 
         containerView.addSubview(titleLabel)
         titleLabel.pin.top().after(of: diagramView).right().height(25).margin(16, 20, 0, 0)

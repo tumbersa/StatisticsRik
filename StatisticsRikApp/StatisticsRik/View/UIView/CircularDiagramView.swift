@@ -11,37 +11,45 @@ import UIKit
 
 final class CircularDiagramView: UIView {
 
-    private struct Appearance {
-        static let lineWidth: CGFloat = 10.0
-        static let remainderColor = Colors.red
-        static let progressColor = Colors.apricot
-        static let emptyStateColor = Colors.gray
+    private enum Constants {
+        static let remainderAnimationKey = "remainder"
+        static let progressAnimationKey = "progress"
     }
+
+    private let lineWidth: CGFloat
+    private let remainderColor: UIColor
+    private let progressColor: UIColor
+    private let emptyStateColor: UIColor
+
 
     private lazy var progressLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
-        layer.lineWidth = Appearance.lineWidth
+        layer.lineWidth = lineWidth
         layer.lineCap = .round
         layer.strokeStart = 0
         layer.strokeEnd = 0
         layer.fillColor = UIColor.clear.cgColor
-        layer.strokeColor = Appearance.progressColor.cgColor
+        layer.strokeColor = progressColor.cgColor
 
         return layer
     }()
 
     private lazy var remainderLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
-        layer.lineWidth = Appearance.lineWidth
+        layer.lineWidth = lineWidth
         layer.lineCap = .round
         layer.strokeStart = 0
         layer.strokeEnd = 1
         layer.fillColor = UIColor.clear.cgColor
-        layer.strokeColor = Appearance.remainderColor.cgColor
+        layer.strokeColor = remainderColor.cgColor
         return layer
     }()
 
-    init() {
+    init(lineWidth: CGFloat, remainderColor: UIColor, progressColor: UIColor, emptyStateColor: UIColor) {
+        self.lineWidth = lineWidth
+        self.remainderColor = remainderColor
+        self.progressColor = progressColor
+        self.emptyStateColor = emptyStateColor
         super.init(frame: .zero)
         loadLayout()
     }
@@ -60,7 +68,7 @@ final class CircularDiagramView: UIView {
 
         let circlePath = UIBezierPath(
             arcCenter: CGPoint(x: bounds.midX, y: bounds.midY),
-            radius: (bounds.width - Appearance.lineWidth) / 2,
+            radius: (bounds.width - lineWidth) / 2,
             startAngle: -CGFloat.pi / 2,
             endAngle: CGFloat.pi * 3 / 2,
             clockwise: true
@@ -70,29 +78,62 @@ final class CircularDiagramView: UIView {
         remainderLayer.path = circlePath
     }
 
-    func setProgress(_ progress: CGFloat) {
+    func setProgress(_ progress: CGFloat, animated: Bool = false) {
         let clampedProgress = max(min(progress, 0.93), 0)
 
         if clampedProgress == 0 {
-            guard remainderLayer.strokeColor != Appearance.emptyStateColor.cgColor else {
-                return
+            if animated {
+                UIView.animate(withDuration: 0.3) {
+                    self.setEmptyState()
+                }
+            } else {
+                self.setEmptyState()
             }
-            remainderLayer.strokeColor = Appearance.emptyStateColor.cgColor
-            progressLayer.strokeColor = Appearance.emptyStateColor.cgColor
-            remainderLayer.strokeStart = 0
-            remainderLayer.strokeEnd = 1
-            progressLayer.strokeEnd = 0
+            removeAnimations()
             return
         }
 
-        remainderLayer.strokeColor = Appearance.remainderColor.cgColor
-        progressLayer.strokeColor = Appearance.progressColor.cgColor
+        remainderLayer.strokeColor = remainderColor.cgColor
+        let gap = 0.03
+
+        if animated {
+            let animation = CABasicAnimation(keyPath: "strokeEnd")
+            animation.fromValue = progressLayer.strokeEnd
+            animation.toValue = clampedProgress
+            animation.duration = 1
+            animation.timingFunction = CAMediaTimingFunction(name: .linear)
+            progressLayer.removeAnimation(forKey: Constants.progressAnimationKey)
+            progressLayer.add(animation, forKey: Constants.progressAnimationKey)
+
+            let animationRemainder = CABasicAnimation(keyPath: "strokeStart")
+            animationRemainder.fromValue = remainderLayer.strokeStart
+            animationRemainder.toValue = clampedProgress + gap
+            animationRemainder.duration = 1
+            animationRemainder.timingFunction = CAMediaTimingFunction(name: .linear)
+            remainderLayer.removeAnimation(forKey: Constants.remainderAnimationKey)
+            remainderLayer.add(animationRemainder, forKey: Constants.remainderAnimationKey)
+        }
+
         progressLayer.strokeEnd = clampedProgress
 
-        let gap = 0.03
         remainderLayer.strokeStart = clampedProgress + gap
         remainderLayer.strokeEnd = 0.97
     }
 
 }
 
+private extension CircularDiagramView {
+
+    func setEmptyState() {
+        remainderLayer.strokeColor = emptyStateColor.cgColor
+        remainderLayer.strokeStart = 0
+        remainderLayer.strokeEnd = 1
+        progressLayer.strokeEnd = 0
+    }
+
+    func removeAnimations() {
+        remainderLayer.removeAnimation(forKey: Constants.remainderAnimationKey)
+        progressLayer.removeAnimation(forKey: Constants.progressAnimationKey)
+    }
+
+}

@@ -14,40 +14,80 @@ public final class MonthVisitorChangeCalculator {
 
     private init() {}
 
-    public func calculateDecrease(statisticsModels: [StatisticsModel]) -> Int {
-        let change = calculateChange(statisticsModels: statisticsModels)
-        return change < 0 ? abs(change) : 0
+    // MARK: - Public
+
+    /// Calculates visitor decreases for the specified number of months
+    /// - Parameters:
+    ///   - statisticsModels: Array of statistics data
+    ///   - numberOfMonths: How many months to analyze (default: 6)
+    /// - Returns: Array of decreases (absolute values) for each month-to-month comparison
+    public func calculateDecreases(
+        statisticsModels: [StatisticsModel],
+        numberOfMonths: Int = 6
+    ) -> [Int] {
+        return calculateChanges(
+            statisticsModels: statisticsModels,
+            numberOfMonths: numberOfMonths
+        ).map { change in
+            change < 0 ? abs(change) : 0
+        }
     }
 
-    public func calculateGrowth(statisticsModels: [StatisticsModel]) -> Int {
-        let change = calculateChange(statisticsModels: statisticsModels)
-        return change > 0 ? change : 0
+    /// Calculates visitor growth for the specified number of months
+    /// - Parameters:
+    ///   - statisticsModels: Array of statistics data
+    ///   - numberOfMonths: How many months to analyze (default: 6)
+    /// - Returns: Array of growth values for each month-to-month comparison
+    public func calculateGrowths(
+        statisticsModels: [StatisticsModel],
+        numberOfMonths: Int = 6
+    ) -> [Int] {
+        return calculateChanges(
+            statisticsModels: statisticsModels,
+            numberOfMonths: numberOfMonths
+        ).map { change in
+            change > 0 ? change : 0
+        }
+    }
+
+    /// Calculates raw visitor changes for the specified number of months
+    /// - Parameters:
+    ///   - statisticsModels: Array of statistics data
+    ///   - numberOfMonths: How many months to analyze (default: 6)
+    /// - Returns: Array of changes (positive and negative) for each month-to-month comparison
+    public func calculateChanges(
+        statisticsModels: [StatisticsModel],
+        numberOfMonths: Int = 6
+    ) -> [Int] {
+
+        let calendar = Calendar.current
+        let now = Date()
+
+        // Get the specified number of months (including current)
+        let monthsInfo: [(month: Int, year: Int)] = (0..<numberOfMonths).map { i in
+            let date = calendar.date(byAdding: .month, value: -i, to: now)!
+            return getMonthAndYear(from: date)
+        }.reversed()
+
+        // Get unique user counts for each month
+        let monthlyCounts = monthsInfo.map { month, year in
+            uniqueUsersCount(in: statisticsModels, forMonth: month, year: year)
+        }
+
+        // Calculate changes between consecutive months
+        var changes = [Int]()
+        for i in 0..<monthlyCounts.count {
+            changes.append( i == 0 ? monthlyCounts[i] : monthlyCounts[i] - monthlyCounts[i-1])
+        }
+
+        return changes
     }
 
 }
 
 private extension MonthVisitorChangeCalculator {
 
-    private func calculateChange(statisticsModels: [StatisticsModel]) -> Int {
-        let lastDate = Date()
-        let (currentMonth, currentYear) = getMonthAndYear(from: lastDate)
-        let (previousMonth, previousYear) = getPreviousMonthAndYear(from: lastDate)
-
-        let currentViews = uniqueUsersCount(
-            in: statisticsModels,
-            forMonth: currentMonth,
-            year: currentYear
-        )
-        let previousViews = uniqueUsersCount(
-            in: statisticsModels,
-            forMonth: previousMonth,
-            year: previousYear
-        )
-
-        return currentViews - previousViews
-    }
-
-    func getMonthAndYear(from date: Date) -> (month: Int, year: Int) {
+    private func getMonthAndYear(from date: Date) -> (month: Int, year: Int) {
         let calendar = Calendar.current
         return (
             calendar.component(.month, from: date),
@@ -55,12 +95,11 @@ private extension MonthVisitorChangeCalculator {
         )
     }
 
-    func getPreviousMonthAndYear(from date: Date) -> (month: Int, year: Int) {
-        let previousDate = Calendar.current.date(byAdding: .month, value: -1, to: date)!
-        return getMonthAndYear(from: previousDate)
-    }
-
-    func uniqueUsersCount(in models: [StatisticsModel], forMonth month: Int, year: Int) -> Int {
+    private func uniqueUsersCount(
+        in models: [StatisticsModel],
+        forMonth month: Int,
+        year: Int
+    ) -> Int {
         let filtered = models
             .filter { $0.type == .view }
             .flatMap { model in

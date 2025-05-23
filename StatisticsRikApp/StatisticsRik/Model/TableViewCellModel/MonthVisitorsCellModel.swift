@@ -13,6 +13,8 @@ struct MonthVisitorsCellModel {
     let description: String
     let titleImage: UIImage
     let height: CGFloat
+    let monthVisiotsChange: [Int]
+    let diagramColor: UIColor
     let isFirst: Bool
     let isLast: Bool
 }

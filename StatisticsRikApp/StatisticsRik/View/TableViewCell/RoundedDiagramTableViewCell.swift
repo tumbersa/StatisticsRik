@@ -9,36 +9,49 @@ import Foundation
 import Core
 import UIKit
 
-final class RoundedDiagramTableViewCell: UITableViewCell {
+final class RoundedDiagramTableViewCell: UITableViewCell, ReusableView {
+
+    // MARK: - Constants
+
+    private enum Constants {
+        static let containerCornerRadius: CGFloat = 16
+        static let diagramSize = CGSize(width: 152, height: 151)
+        static let dividerHeight: CGFloat = 0.5
+        static let ageStatsHeight: CGFloat = 27
+        static let labelHeight: CGFloat = 16
+        static let ageLabelWidth: CGFloat = 43
+    }
+
+    // MARK: - Properties
 
     private let rangesAge: [String] = [
         "18-21", "22-25", "26-30", "31-35", "36-40", "40-50", ">50"
     ]
 
-    private lazy var containerView = {
-        let containerView = UIView()
-        containerView.layer.cornerRadius = 16
-        containerView.backgroundColor = Colors.white
-        return containerView
+    private lazy var containerView: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = Constants.containerCornerRadius
+        view.backgroundColor = Colors.white
+        return view
     }()
-
-    private lazy var diagramView = CircularDiagramView()
 
     private lazy var menGenderStatsView = GenderStatsView()
     private lazy var womenGenderStatsView = GenderStatsView()
 
     private lazy var divider: UIView = {
-        let divider = UIView()
-        divider.backgroundColor = Colors.separation
-        return divider
+        let view = UIView()
+        view.backgroundColor = Colors.separation
+        return view
     }()
 
     private var previousLabel: UILabel?
     private var previousAgeStatsView: AgeStatsView?
+    private var diagramView: CircularDiagramView?
+
+    // MARK: - Lifecycle
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
         configureAppearance()
     }
 
@@ -46,88 +59,139 @@ final class RoundedDiagramTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func set(models: [RoundedDiagramCellModel]) {
+    override func prepareForReuse() {
+        super.prepareForReuse()
         containerView.subviews.forEach {
-            if $0 != diagramView && $0 != menGenderStatsView && $0 != womenGenderStatsView && $0 != divider {
+            if $0 != menGenderStatsView && $0 != womenGenderStatsView && $0 != divider {
                 $0.removeFromSuperview()
             }
         }
-        pinViews()
-
-        let menPercent = models.count == 0 ?
-        0 :
-        Int(Double(models.filter{ $0.sex == .men }.count) / Double(models.count) * 100)
-        menGenderStatsView.set(circleColor: Colors.red, gender: "Мужчины", percent: "\(menPercent)%")
-
-        let womenPercent = models.count == 0 ?
-        0 :
-        Int(Double(models.filter{ $0.sex == .women }.count) / Double(models.count) * 100)
-        womenGenderStatsView.set(circleColor: Colors.apricot, gender: "Женщины", percent: "\(womenPercent)%")
-        diagramView.setProgress(CGFloat(Double(womenPercent) / 100))
-
-        for (index, gropedModels) in groupModelsByAgeRange(models: models).enumerated() {
-            let ageStatsView = AgeStatsView()
-            containerView.addSubview(ageStatsView)
-            if index == 0 {
-                ageStatsView.pin.top(to: divider.edge.bottom).left(98).right().height(27)
-                    .marginTop(20)
-            } else if let previousAgeStatsView {
-                ageStatsView.pin.top(to: previousAgeStatsView.edge.bottom).left(98).right().height(27)
-                   .marginTop(12)
-            }
-
-            ageStatsView.set(models: gropedModels)
-            previousAgeStatsView = ageStatsView
-        }
-
+        diagramView = nil
+        previousLabel = nil
+        previousAgeStatsView = nil
     }
 
+    // MARK: - Public API
+
+    func set(models: [RoundedDiagramCellModel]) {
+        pinViews()
+        configureGenderStats(models)
+        configureAgeStats(models)
+    }
 }
 
+// MARK: - Private
+
 private extension RoundedDiagramTableViewCell {
+
+    func configureAppearance() {
+        backgroundColor = .clear
+        selectionStyle = .none
+    }
 
     func pinViews() {
         contentView.addSubview(containerView)
         containerView.pin.all().marginHorizontal(16)
 
-        containerView.addSubview(diagramView)
-        diagramView.pin.top(21).hCenter().width(152).height(151)
+        pinDiagramSection()
+        pinGenderStats()
+        pinDivider()
+        pinRangeAgeLabels()
+    }
 
+    func pinDiagramSection() {
+        diagramView = CircularDiagramView(
+            lineWidth: 10,
+            remainderColor: Colors.red,
+            progressColor: Colors.apricot,
+            emptyStateColor: Colors.gray
+        )
+        guard let diagramView else { return }
+        containerView.addSubview(diagramView)
+        diagramView.pin.top(21).hCenter().size(Constants.diagramSize)
+    }
+
+    func pinGenderStats() {
+        guard let diagramView else { return }
         containerView.addSubview(menGenderStatsView)
-        menGenderStatsView.pin.left().top(to: diagramView.edge.bottom).height(16).width(103)
+        menGenderStatsView.pin.left()
+            .top(to: diagramView.edge.bottom)
+            .height(Constants.labelHeight).width(103)
             .margin(20, 40, 0, 0)
 
         containerView.addSubview(womenGenderStatsView)
-        womenGenderStatsView.pin.left(to: menGenderStatsView.edge.right).top(to: diagramView.edge.bottom)
-            .right().height(16)
+        womenGenderStatsView.pin.left(to: menGenderStatsView.edge.right)
+            .top(to: diagramView.edge.bottom).right()
+            .height(Constants.labelHeight)
             .margin(20, 72, 0, 22)
-
-        containerView.addSubview(divider)
-        divider.pin.left().right().height(0.5).top(to: menGenderStatsView.edge.bottom)
-            .marginTop(20)
-
-        for (index, rangeAge) in rangesAge.enumerated() {
-            let rangeAgeLabel = rangeAgeLabel(text: rangeAge)
-            containerView.addSubview(rangeAgeLabel)
-
-            if index == 0 {
-                rangeAgeLabel.pin.left(24).top(to: divider.edge.bottom).marginTop(24)
-                    .width(43).height(16)
-            } else if let previousLabel {
-                rangeAgeLabel.pin.left(24).top(to: previousLabel.edge.bottom).marginTop(24)
-                    .width(43).height(16)
-            }
-
-            rangeAgeLabel.sizeToFit()
-            rangeAgeLabel.pin.height(16)
-            previousLabel = rangeAgeLabel
-        }
-
     }
 
-    func configureAppearance() {
-        backgroundColor = .clear
-        selectionStyle = .none
+    func pinDivider() {
+        containerView.addSubview(divider)
+        divider.pin.left().right().height(Constants.dividerHeight)
+            .top(to: menGenderStatsView.edge.bottom).marginTop(20)
+    }
+
+    func pinRangeAgeLabels() {
+        for (index, rangeAge) in rangesAge.enumerated() {
+            let label = rangeAgeLabel(text: rangeAge)
+            containerView.addSubview(label)
+
+            if index == 0 {
+                label.pin.left(24)
+                    .top(to: divider.edge.bottom)
+                    .marginTop(24)
+                    .width(Constants.ageLabelWidth)
+                    .height(Constants.labelHeight)
+            } else if let previousLabel {
+                label.pin.left(24)
+                    .top(to: previousLabel.edge.bottom)
+                    .marginTop(24)
+                    .width(Constants.ageLabelWidth)
+                    .height(Constants.labelHeight)
+            }
+
+            label.sizeToFit()
+            previousLabel = label
+        }
+    }
+
+    func configureGenderStats(_ models: [RoundedDiagramCellModel]) {
+        let totalCount = models.count
+
+        guard totalCount > 0 else {
+            menGenderStatsView.set(circleColor: Colors.red, gender: "Мужчины", percent: "0%")
+            womenGenderStatsView.set(circleColor: Colors.apricot, gender: "Женщины", percent: "0%")
+            diagramView?.setProgress(0)
+            return
+        }
+
+        let menCount = models.filter { $0.sex == .men }.count
+
+        let menPercent = Int(Double(menCount) / Double(totalCount) * 100)
+        let womenPercent = 100 - menPercent
+
+        menGenderStatsView.set(circleColor: Colors.red, gender: "Мужчины", percent: "\(menPercent)%")
+        womenGenderStatsView.set(circleColor: Colors.apricot, gender: "Женщины", percent: "\(womenPercent)%")
+        diagramView?.setProgress(CGFloat(Double(womenPercent) / 100), animated: true)
+    }
+
+    func configureAgeStats(_ models: [RoundedDiagramCellModel]) {
+        for (index, groupedModels) in groupModelsByAgeRange(models: models).enumerated() {
+            let ageStatsView = AgeStatsView()
+            containerView.addSubview(ageStatsView)
+
+            if index == 0 {
+                ageStatsView.pin.top(to: divider.edge.bottom).left(98).right()
+                    .height(Constants.ageStatsHeight).marginTop(20)
+            } else if let previousAgeStatsView {
+                ageStatsView.pin.top(to: previousAgeStatsView.edge.bottom).left(98).right()
+                    .height(Constants.ageStatsHeight).marginTop(12)
+            }
+
+            ageStatsView.set(models: groupedModels)
+            previousAgeStatsView = ageStatsView
+        }
     }
 
     func rangeAgeLabel(text: String) -> UILabel {
@@ -155,4 +219,3 @@ private extension RoundedDiagramTableViewCell {
     }
 
 }
-

@@ -28,8 +28,17 @@ final class StatisticsBlockBuilder {
         blocks.append(labelBlock(text: "Посетители"))
         blocks.append(.empty(height: 12))
 
-        let growth = MonthVisitorChangeCalculator.shared.calculateGrowth(statisticsModels: statistics)
-        blocks.append(growthMonthVisitorsBlock(growth: growth, height: 98, isFirst: true, isLast: true))
+        let growth = MonthVisitorChangeCalculator.shared.calculateGrowths(statisticsModels: statistics, numberOfMonths: 1).first ?? 0
+        let monthVisiotsGrowths = MonthVisitorChangeCalculator.shared.calculateGrowths(statisticsModels: statistics, numberOfMonths: 6)
+        blocks.append(
+            growthMonthVisitorsBlock(
+                monthVisiotsChange: monthVisiotsGrowths,
+                growth: growth,
+                height: 98,
+                isFirst: true,
+                isLast: true
+            )
+        )
 
         blocks.append(.empty(height: 28))
         blocks.append(.filter(height: 32, items: diagramFilterItems))
@@ -51,9 +60,19 @@ final class StatisticsBlockBuilder {
         blocks.append(.empty(height: 28))
         blocks.append(labelBlock(text: "Наблюдатели"))
         blocks.append(.empty(height: 12))
-        blocks.append(growthMonthVisitorsBlock(growth: growth, height: 100, isFirst: true, isLast: false))
-        let decrease = MonthVisitorChangeCalculator.shared.calculateDecrease(statisticsModels: statistics)
-        blocks.append(decreaseMonthVisitorsBlock(decrease: decrease))
+
+        blocks.append(
+            growthMonthVisitorsBlock(
+                monthVisiotsChange: monthVisiotsGrowths,
+                growth: growth,
+                height: 100,
+                isFirst: true,
+                isLast: false
+            )
+        )
+        let decrease = MonthVisitorChangeCalculator.shared.calculateDecreases(statisticsModels: statistics, numberOfMonths: 1).first ?? 0
+        let monthVisiotsDecreases = MonthVisitorChangeCalculator.shared.calculateDecreases(statisticsModels: statistics, numberOfMonths: 6)
+        blocks.append(decreaseMonthVisitorsBlock(monthVisiotsChange: monthVisiotsDecreases, decrease: decrease))
         blocks.append(.empty(height: 32))
         return blocks
     }
@@ -78,24 +97,28 @@ private extension StatisticsBlockBuilder {
         ))
     }
 
-    func growthMonthVisitorsBlock(growth: Int, height: CGFloat, isFirst: Bool, isLast: Bool) -> StatisticsViewBlock {
+    func growthMonthVisitorsBlock(monthVisiotsChange: [Int], growth: Int, height: CGFloat, isFirst: Bool, isLast: Bool) -> StatisticsViewBlock {
 
         return .monthVisitors(model:  .init(
             title: "\(growth)",
             description: "Количество посетителей в этом месяце выросло",
             titleImage: Images.arrowUp,
             height: height,
+            monthVisiotsChange: monthVisiotsChange,
+            diagramColor: Colors.green2,
             isFirst: isFirst,
             isLast: isLast
         ))
     }
 
-    func decreaseMonthVisitorsBlock(decrease: Int) -> StatisticsViewBlock {
+    func decreaseMonthVisitorsBlock(monthVisiotsChange: [Int], decrease: Int) -> StatisticsViewBlock {
         return .monthVisitors(model:  .init(
             title: "\(decrease)",
             description: "Пользователей перестали за Вами наблюдать",
             titleImage: Images.arrowDown,
             height: 100,
+            monthVisiotsChange: monthVisiotsChange,
+            diagramColor: Colors.red2,
             isFirst: false,
             isLast: true
         ))

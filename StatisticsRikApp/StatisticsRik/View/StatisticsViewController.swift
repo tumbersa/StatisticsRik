@@ -37,6 +37,7 @@ final class StatisticsViewController: UIViewController {
         tableView.register(MonthVisitorsTableViewCell.self)
         tableView.register(VisitorTableViewCell.self)
         tableView.register(FilterTableViewCell.self)
+        tableView.register(RoundedDiagramTableViewCell.self)
         view.addSubview(tableView)
         return tableView
     }()
@@ -216,10 +217,9 @@ extension StatisticsViewController: UITableViewDataSource {
                 }
                 return cell
 
-            case .roundedDiagramVisitors(height: let height, models: let models):
-                let cell: RoundedDiagramTableViewCell = RoundedDiagramTableViewCell()
+            case .roundedDiagramVisitors(_, models: let models):
+                let cell: RoundedDiagramTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 let filteredModels = DiagramFilterService.filterModels(models, by: currentExtendedFilteredPeriod)
-                cell.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: height)
                 cell.set(models: filteredModels)
                 return cell
         }
