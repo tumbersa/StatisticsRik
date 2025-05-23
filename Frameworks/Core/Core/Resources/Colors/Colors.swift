@@ -19,4 +19,5 @@ public enum Colors {
     public static let red2 = UIColor(resource: .red2)
     public static let black = UIColor(resource: .black1)
     public static let apricot = UIColor(resource: .apricot)
+    public static let shadowCurve = UIColor(resource: .shadowCurve)
 }

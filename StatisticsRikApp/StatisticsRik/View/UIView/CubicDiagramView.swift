@@ -20,7 +20,6 @@ final class CubicDiagramView: UIView {
 
     func set(values: [Int], diagramColor: UIColor) {
         guard !values.isEmpty else { return }
-
         reset()
 
         points = calculatePoints(from: values)
@@ -101,19 +100,80 @@ private extension CubicDiagramView {
                 bezierPath.addCurve(to: point, controlPoint1: segment.firstControlPoint, controlPoint2: segment.secondControlPoint)
             }
         }
+        let bottomLayer = drawBottomCurve(basePoints: points, baseColor: color)
+        let mainLayer = CAShapeLayer()
+        mainLayer.path = bezierPath.cgPath
+        mainLayer.lineWidth = 3
+        mainLayer.strokeColor = color.cgColor
+        mainLayer.fillColor = .none
+        mainLayer.lineCap = .round
+        layer.addSublayer(mainLayer)
 
-        let shapeLayer = CAShapeLayer()
-        shapeLayer.path = bezierPath.cgPath
-        shapeLayer.lineWidth = 3
-        shapeLayer.strokeColor = color.cgColor
-        shapeLayer.fillColor = .none
-        shapeLayer.lineCap = .round
-        layer.addSublayer(shapeLayer)
-
-        animateCurveDrawing(layer: shapeLayer, color: color)
+        animateCurves(mainLayer: mainLayer, bottomLayer: bottomLayer, color: color)
     }
 
-    func animateCurveDrawing(layer: CAShapeLayer, color: UIColor) {
+    @discardableResult
+    func drawBottomCurve(basePoints: [CGPoint], baseColor: UIColor) -> CAShapeLayer {
+        let bottomPath = UIBezierPath()
+        let offsetPoints = generateBottomCurvePoints(from: basePoints)
+
+        let config = BezierConfiguration()
+        let controlPoints = config.configureControlPoints(data: offsetPoints)
+
+        for (index, point) in offsetPoints.enumerated() {
+            if index == 0 {
+                bottomPath.move(to: point)
+            } else {
+                let segment = controlPoints[index - 1]
+                bottomPath.addCurve(to: point, controlPoint1: segment.firstControlPoint, controlPoint2: segment.secondControlPoint)
+            }
+        }
+
+        let bottomLayer = CAShapeLayer()
+        bottomLayer.path = bottomPath.cgPath
+        bottomLayer.lineWidth = 3
+        bottomLayer.strokeColor = Colors.shadowCurve.cgColor
+        bottomLayer.fillColor = .none
+        bottomLayer.lineCap = .round
+        layer.addSublayer(bottomLayer)
+
+        return bottomLayer
+    }
+
+    func generateBottomCurvePoints(from basePoints: [CGPoint]) -> [CGPoint] {
+        guard basePoints.count >= 2 else { return basePoints }
+
+        var newPoints: [CGPoint] = []
+
+        guard let lowestMainPoint = basePoints.max(by: { $0.y < $1.y }) else {
+            return basePoints
+        }
+
+        for (index, point) in basePoints.enumerated() {
+            let offset: CGFloat
+
+            if index == 0 {
+                offset = 0
+            } else {
+                let prevY = basePoints[index - 1].y
+                let diff = abs(point.y - prevY)
+                offset = min(5, diff)
+            }
+
+            let newPoint = CGPoint(x: point.x, y: point.y + offset)
+            newPoints.append(newPoint)
+        }
+
+        newPoints[newPoints.count - 1] = basePoints.last!
+
+        if let currentLowestIndex = newPoints.enumerated().max(by: { $0.element.y < $1.element.y })?.offset {
+            newPoints[currentLowestIndex] = CGPoint(x: newPoints[currentLowestIndex].x, y: lowestMainPoint.y)
+        }
+
+        return newPoints
+    }
+
+    func animateCurves(mainLayer: CAShapeLayer, bottomLayer: CAShapeLayer, color: UIColor) {
         let animation = CABasicAnimation(keyPath: "strokeEnd")
         animation.fromValue = 0.0
         animation.toValue = 1.0
@@ -124,7 +184,10 @@ private extension CubicDiagramView {
             self?.addCircleMarker(color: color)
             self?.fadeInCircle()
         }
-        layer.add(animation, forKey: "drawCurve")
+
+        mainLayer.add(animation, forKey: "drawMainCurve")
+        bottomLayer.add(animation.copy() as! CABasicAnimation, forKey: "drawBottomCurve")
+
         CATransaction.commit()
     }
 

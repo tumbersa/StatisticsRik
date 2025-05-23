@@ -108,7 +108,6 @@ private extension MonthVisitorsTableViewCell {
         guard let diagramView else { return }
         containerView.addSubview(diagramView)
         diagramView.pin.left().top().bottom().width(95).margin(16, 20, 16, 0)
-        print(diagramView.frame)
 
         containerView.addSubview(titleLabel)
         titleLabel.pin.top().after(of: diagramView).right().height(25).margin(16, 20, 0, 0)
