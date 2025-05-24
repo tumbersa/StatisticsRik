@@ -86,8 +86,8 @@ final class VisitorTableViewCell: UITableViewCell, ReusableView {
             .layerMinXMinYCorner, .layerMaxXMinYCorner,
             .layerMinXMaxYCorner, .layerMaxXMaxYCorner
         ]
-        onlineIndicatorContainer.removeFromSuperview()
-        divider.removeFromSuperview()
+        divider.isHidden = true
+        onlineIndicatorContainer.isHidden = true
     }
 
     func set(model: VisitorCellModel) {
@@ -97,6 +97,7 @@ final class VisitorTableViewCell: UITableViewCell, ReusableView {
         }
 
         pinViews()
+        configureDivider()
         switch (model.isFirst, model.isLast) {
             case (true, true):
                 containerView.layer.maskedCorners = [
@@ -105,15 +106,15 @@ final class VisitorTableViewCell: UITableViewCell, ReusableView {
                 ]
             case (true, false):
                 containerView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-                configureDivider()
+                divider.isHidden = false
             case (false, true):
                 containerView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
             default:
                 containerView.layer.maskedCorners = []
-                configureDivider()
+                divider.isHidden = false
         }
 
-        model.isOnline ? configureOnlineIndicator() : ()
+        model.isOnline ? configureOnlineIndicator() : { onlineIndicatorContainer.isHidden = true }()
     }
 
 }
@@ -150,11 +151,13 @@ private extension VisitorTableViewCell {
 
         onlineIndicatorContainer.addSubview(onlineIndicator)
         onlineIndicator.pin.center().width(8).height(8)
+        onlineIndicatorContainer.isHidden = false
     }
 
     func configureDivider() {
         containerView.addSubview(divider)
         divider.pin.bottom().left(to: userLabel.edge.left).right(1).height(0.5)
+        divider.isHidden = true
     }
 
     func configureAppearance() {

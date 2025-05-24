@@ -32,20 +32,18 @@ final class BeansView: UIView {
 private extension BeansView {
 
     func pinHorizontalBeans(color: UIColor) {
-        let leftInset: CGFloat = 15
-        let rightInset: CGFloat = 25
         let spacing: CGFloat = 5
         let edgeWidth: CGFloat = 3.5
         let middleWidth: CGFloat = 6.5
         let height: CGFloat = 1
 
-        let availableWidth = bounds.width - leftInset - rightInset
+        let availableWidth = bounds.width
         var count = 2
         var totalWidth = edgeWidth * 2
 
         while true {
             let newTotal = totalWidth + middleWidth + spacing
-            if newTotal + rightInset + leftInset > availableWidth {
+            if newTotal > availableWidth {
                 break
             }
             totalWidth += middleWidth + spacing
@@ -55,7 +53,7 @@ private extension BeansView {
         let middleCount = max(count - 2, 0)
         let totalElements = middleCount + 2
 
-        var x = leftInset
+        var x = 0.0
         for i in 0..<totalElements {
             let isEdge = (i == 0 || i == totalElements - 1)
             let width = isEdge ? edgeWidth : middleWidth

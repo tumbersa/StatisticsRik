@@ -10,7 +10,6 @@ import BuisnessLayer
 import RxSwift
 import Core
 import PinLayout
-import DatabaseLayer
 
 final class StatisticsViewController: UIViewController {
 
@@ -19,6 +18,8 @@ final class StatisticsViewController: UIViewController {
 
     private var currentFilteredPeriod: FilterPeriod = .day
     private var currentExtendedFilteredPeriod: FilterPeriod.Extended = .today
+
+    private let rangesAge: [String] = AgeStatisticsProcessor.rangesAge
 
     private let bag = DisposeBag()
     private var users: [UserModel] = []
@@ -49,8 +50,6 @@ final class StatisticsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        RealmManager().deleteDatabaseFiles()
-//        RealmManager().clearDatabase()
         loadData()
 
         view.backgroundColor = Colors.background
@@ -217,12 +216,20 @@ extension StatisticsViewController: UITableViewDataSource {
             case .roundedDiagramVisitors(_, models: let models):
                 let cell: RoundedDiagramTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 let filteredModels = DiagramFilterService.filterModels(models, by: currentExtendedFilteredPeriod)
-                cell.set(models: filteredModels)
+                cell.set(
+                    rangesAge: rangesAge,
+                    models: filteredModels,
+                    modelsByAgeRange: AgeStatisticsProcessor.groupModelsByAgeRange(models: filteredModels)
+                )
                 return cell
             case .diagramVisitors(_, models: let models):
                 let cell: DiagramVisitorsTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 let filteredModels = DiagramFilterService.filterModels(models, by: currentFilteredPeriod)
-                cell.set(models: filteredModels, currentFilteredPeriod: currentFilteredPeriod)
+                cell.set(
+                    dateLabelsText: VisitorStatisticsProcessor.getLastSevenPeriods(filterPeriod: currentFilteredPeriod),
+                    visitors: VisitorStatisticsProcessor.calculateVisitorCounts(from: filteredModels, for: currentFilteredPeriod),
+                    periodLabels: DateLabelFormatter().generateLabels(for: currentFilteredPeriod)
+                )
                 return cell
         }
     }
@@ -235,8 +242,7 @@ extension StatisticsViewController: UITableViewDelegate {
         let block = blocks[indexPath.row]
 
         switch block {
-            case
-                    .empty(let height):
+            case .empty(let height):
                 return height
             case .label(let model):
                 return model.height

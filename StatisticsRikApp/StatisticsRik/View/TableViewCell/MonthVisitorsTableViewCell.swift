@@ -64,7 +64,7 @@ final class MonthVisitorsTableViewCell: UITableViewCell, ReusableView {
             .layerMinXMinYCorner, .layerMaxXMinYCorner,
             .layerMinXMaxYCorner, .layerMaxXMaxYCorner
         ]
-        divider.removeFromSuperview()
+        divider.isHidden = true
         diagramView?.removeFromSuperview()
         diagramView = nil
     }
@@ -74,6 +74,8 @@ final class MonthVisitorsTableViewCell: UITableViewCell, ReusableView {
         descriptionLabel.text = model.description
         titleLabel.text = model.title
 
+        configureDivider()
+
         switch (model.isFirst, model.isLast) {
             case (true, true):
                 containerView.layer.maskedCorners = [
@@ -82,18 +84,17 @@ final class MonthVisitorsTableViewCell: UITableViewCell, ReusableView {
                 ]
             case (true, false):
                 containerView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-                configureDivider()
+                divider.isHidden = false
             case (false, true):
                 containerView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
             default:
                 containerView.layer.maskedCorners = []
-                configureDivider()
+                divider.isHidden = false
         }
 
         diagramView = CubicDiagramView()
         pinViews()
         diagramView?.set(values: model.monthVisiotsChange, diagramColor: model.diagramColor)
-
     }
 
 }
@@ -127,6 +128,7 @@ private extension MonthVisitorsTableViewCell {
     func configureDivider() {
         containerView.addSubview(divider)
         divider.pin.bottom(-2).left().right().height(0.5)
+        divider.isHidden = true
     }
 
     func configureAppearance() {

@@ -127,7 +127,7 @@ public final class StatisticsDataProvider: IStatisticsDataProvider {
 private extension StatisticsDataProvider {
 
     func cacheUsers(_ users: [UserModel]) {
-        realmManager.clearObjects(UserEntity.self)
+        realmManager.deleteObjects(UserEntity.self)
         users.forEach { user in
             let entity = UserEntity(from: user)
             self.realmManager.saveObject(entity, isUpdated: true)
@@ -147,7 +147,7 @@ private extension StatisticsDataProvider {
     }
 
     func cacheStatistics(_ statistics: [StatisticsModel]) {
-        realmManager.clearObjects(StatisticsEntity.self)
+        realmManager.deleteObjects(StatisticsEntity.self)
         statistics.forEach { stat in
             let entity = StatisticsEntity(from: stat)
             realmManager.saveObject(entity)

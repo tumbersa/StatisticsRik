@@ -1,5 +1,5 @@
 //
-//  VisitorStatisticsCalculator.swift
+//  VisitorStatisticsProcessor.swift
 //  StatisticsRik
 //
 //  Created by Глеб Капустин on 24.05.2025.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum VisitorStatisticsCalculator {
+enum VisitorStatisticsProcessor {
 
     static func calculateVisitorCounts(
         from models: [DiagramVisitorsCellModel],
@@ -48,4 +48,42 @@ enum VisitorStatisticsCalculator {
         return result
     }
 
+    static func getLastSevenPeriods(filterPeriod: FilterPeriod) -> [String] {
+        let calendar = Calendar.current
+
+        let now = Date()
+        var periods = [String]()
+        let dateFormatter = DateFormatter()
+
+        switch filterPeriod {
+            case .day:
+                dateFormatter.dateFormat = "dd.MM"
+                for day in (0..<7).reversed() {
+                    if let date = calendar.date(byAdding: .day, value: -day, to: now) {
+                        periods.append(dateFormatter.string(from: date))
+                    }
+                }
+
+            case .week:
+                dateFormatter.dateFormat = "dd"
+                for week in (0..<7).reversed() {
+                    if let startOfWeek = calendar.date(byAdding: .weekOfYear, value: -week, to: now)?.startOfWeek(),
+                       let endOfWeek = calendar.date(byAdding: .weekOfYear, value: -week, to: now)?.endOfWeek() {
+                        let startDay = dateFormatter.string(from: startOfWeek)
+                        let endDay = dateFormatter.string(from: endOfWeek)
+                        periods.append("\(startDay)-\(endDay)")
+                    }
+                }
+
+            case .month:
+                dateFormatter.dateFormat = "MM"
+                for month in (0..<7).reversed() {
+                    if let date = calendar.date(byAdding: .month, value: -month, to: now) {
+                        periods.append(dateFormatter.string(from: date))
+                    }
+                }
+        }
+
+        return periods
+    }
 }

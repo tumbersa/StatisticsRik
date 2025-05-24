@@ -24,10 +24,6 @@ final class RoundedDiagramTableViewCell: UITableViewCell, ReusableView {
 
     // MARK: - Properties
 
-    private let rangesAge: [String] = [
-        "18-21", "22-25", "26-30", "31-35", "36-40", "40-50", ">50"
-    ]
-
     private lazy var containerView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = Constants.containerCornerRadius
@@ -48,6 +44,8 @@ final class RoundedDiagramTableViewCell: UITableViewCell, ReusableView {
     private var previousAgeStatsView: AgeStatsView?
     private var diagramView: CircularDiagramView?
 
+    private var ageStatsViews: [AgeStatsView] = []
+
     // MARK: - Lifecycle
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -61,22 +59,19 @@ final class RoundedDiagramTableViewCell: UITableViewCell, ReusableView {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        containerView.subviews.forEach {
-            if $0 != menGenderStatsView && $0 != womenGenderStatsView && $0 != divider {
-                $0.removeFromSuperview()
-            }
-        }
+
+        diagramView?.removeFromSuperview()
         diagramView = nil
-        previousLabel = nil
         previousAgeStatsView = nil
     }
 
     // MARK: - Public API
 
-    func set(models: [RoundedDiagramCellModel]) {
+    func set(rangesAge: [String], models: [RoundedDiagramCellModel], modelsByAgeRange: [[RoundedDiagramCellModel]]) {
         pinViews()
-        configureGenderStats(models)
-        configureAgeStats(models)
+        configureRangeAgeLabels(rangesAge: rangesAge)
+        configureGenderStats(models: models)
+        configureAgeStats(modelsByAgeRange: modelsByAgeRange)
     }
 }
 
@@ -96,7 +91,6 @@ private extension RoundedDiagramTableViewCell {
         pinDiagramSection()
         pinGenderStats()
         pinDivider()
-        pinRangeAgeLabels()
     }
 
     func pinDiagramSection() {
@@ -132,7 +126,8 @@ private extension RoundedDiagramTableViewCell {
             .top(to: menGenderStatsView.edge.bottom).marginTop(20)
     }
 
-    func pinRangeAgeLabels() {
+    func configureRangeAgeLabels(rangesAge: [String]) {
+        guard previousLabel == nil else { return }
         for (index, rangeAge) in rangesAge.enumerated() {
             let label = rangeAgeLabel(text: rangeAge)
             containerView.addSubview(label)
@@ -156,7 +151,7 @@ private extension RoundedDiagramTableViewCell {
         }
     }
 
-    func configureGenderStats(_ models: [RoundedDiagramCellModel]) {
+    func configureGenderStats(models: [RoundedDiagramCellModel]) {
         let totalCount = models.count
 
         guard totalCount > 0 else {
@@ -176,9 +171,16 @@ private extension RoundedDiagramTableViewCell {
         diagramView?.setProgress(CGFloat(Double(womenPercent) / 100), animated: true)
     }
 
-    func configureAgeStats(_ models: [RoundedDiagramCellModel]) {
-        for (index, groupedModels) in groupModelsByAgeRange(models: models).enumerated() {
+    func configureAgeStats(modelsByAgeRange: [[RoundedDiagramCellModel]]) {
+        guard ageStatsViews.isEmpty else {
+            for (index, groupedModels) in modelsByAgeRange.enumerated() {
+                ageStatsViews[index].set(models: groupedModels)
+            }
+            return
+        }
+        for (index, groupedModels) in modelsByAgeRange.enumerated() {
             let ageStatsView = AgeStatsView()
+            ageStatsViews.append(ageStatsView)
             containerView.addSubview(ageStatsView)
 
             if index == 0 {
@@ -199,23 +201,6 @@ private extension RoundedDiagramTableViewCell {
         label.text = text
         label.font = Fonts.gilroySemiBold(size: 15).font
         return label
-    }
-
-    func groupModelsByAgeRange(models: [RoundedDiagramCellModel]) -> [[RoundedDiagramCellModel]] {
-        return rangesAge.map { ageRange in
-            models.filter { model in
-                switch ageRange {
-                case "18-21": return (18...21).contains(model.age)
-                case "22-25": return (22...25).contains(model.age)
-                case "26-30": return (26...30).contains(model.age)
-                case "31-35": return (31...35).contains(model.age)
-                case "36-40": return (36...40).contains(model.age)
-                case "40-50": return (40...50).contains(model.age)
-                case ">50": return model.age > 50
-                default: return false
-                }
-            }
-        }
     }
 
 }

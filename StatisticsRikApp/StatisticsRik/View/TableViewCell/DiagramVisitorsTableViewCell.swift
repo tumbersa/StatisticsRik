@@ -20,11 +20,19 @@ final class DiagramVisitorsTableViewCell: UITableViewCell, ReusableView {
         return view
     }()
 
+
     private var diagramView: LinearDiagramView?
+    private var dateLabels: [UILabel] = []
+
+    private var horizontalBeansView: [BeansView] = []
+    private let verticalBeanView = BeansView()
+
+    private let infoView = VisitorDiagramInfoView()
+
     private var labelsMidX: [CGFloat] = []
+
     private var visitors: [Int] = []
     private var periodLabels: [String] = []
-    private var horizontalBeansView: [BeansView] = []
 
     // MARK: - Initialization
 
@@ -41,24 +49,21 @@ final class DiagramVisitorsTableViewCell: UITableViewCell, ReusableView {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        containerView.subviews.forEach { $0.removeFromSuperview() }
-        labelsMidX.removeAll()
-        visitors.removeAll()
+        verticalBeanView.isHidden = true
+        infoView.isHidden = true
+        diagramView?.removeFromSuperview()
+        diagramView = nil
     }
 
     // MARK: - Configuration
 
-    func set(models: [DiagramVisitorsCellModel], currentFilteredPeriod: FilterPeriod) {
+    func set(dateLabelsText: [String], visitors: [Int], periodLabels: [String]) {
+        self.visitors = visitors
+        self.periodLabels = periodLabels
+
         setupViews()
-        addHorizontalLines()
-        addDateLabels(currentFilteredPeriod.getLastSevenPeriods())
-
+        addDateLabels(dateLabelsText)
         addDiagramView()
-
-        visitors = VisitorStatisticsCalculator.calculateVisitorCounts(from: models, for: currentFilteredPeriod)
-        periodLabels = DateLabelFormatter().generateLabels(for: currentFilteredPeriod)
-        guard let diagramView = diagramView else { return }
-        diagramView.set(values: visitors, midXs: labelsMidX)
     }
 
     // MARK: - Touch Handling
@@ -92,9 +97,31 @@ private extension DiagramVisitorsTableViewCell {
     func setupViews() {
         contentView.addSubview(containerView)
         containerView.pin.all().marginHorizontal(16)
+
+        addHorizontalBeans()
+        addVerticalBeanView()
+
+        containerView.addSubview(infoView)
+    }
+
+    func addVerticalBeanView() {
+        guard verticalBeanView.superview == nil else { return }
+
+        verticalBeanView.isHidden = true
+        containerView.addSubview(verticalBeanView)
+
+        verticalBeanView.pin
+            .top(5).left().bottom(37).width(1)
+        verticalBeanView.set(alignment: .verical, color: Colors.red)
     }
 
     func addDateLabels(_ labels: [String]) {
+        guard dateLabels.isEmpty else {
+            for index in dateLabels.indices {
+                dateLabels[index].text = labels[index]
+            }
+            return
+        }
         let labelWidth: CGFloat = 35
         let labelHeight: CGFloat = 11
         let sideMargin: CGFloat = 31
@@ -103,6 +130,7 @@ private extension DiagramVisitorsTableViewCell {
 
         for (index, text) in labels.enumerated() {
             let label = createDateLabel(with: text)
+            dateLabels.append(label)
             containerView.addSubview(label)
             let xPosition = sideMargin + CGFloat(index) * (labelWidth + spacing)
             label.pin.bottom(10).width(labelWidth).height(labelHeight).left(xPosition)
@@ -115,66 +143,45 @@ private extension DiagramVisitorsTableViewCell {
         guard let diagramView = diagramView else { return }
         containerView.addSubview(diagramView)
         diagramView.pin.all().margin(10, 15, 32, 32.39)
+        diagramView.set(values: visitors, midXs: labelsMidX)
     }
 
-    func addHorizontalLines() {
-//        guard horizontalBeansView.isEmpty else { return }
-//        let beanView = BeansView()
-//        containerView.addSubview(beanView)
-        let leftInset: CGFloat = 15
-        let rightInset: CGFloat = 25
-        let spacing: CGFloat = 5
-        let edgeWidth: CGFloat = 3.5
-        let middleWidth: CGFloat = 6.5
-        let height: CGFloat = 1
+    func addHorizontalBeans() {
+        guard horizontalBeansView.isEmpty else { return }
         let yPositions: [CGFloat] = [32, 107, 179]
-
-        let availableWidth = contentView.bounds.width - leftInset - rightInset
-        var count = 2
-        var totalWidth = edgeWidth * 2
-
-        while true {
-            let newTotal = totalWidth + middleWidth + spacing
-            if newTotal + rightInset + leftInset > availableWidth {
-                break
-            }
-            totalWidth += middleWidth + spacing
-            count += 1
-        }
-
-        let middleCount = max(count - 2, 0)
-        let totalElements = middleCount + 2
-
+        let width = containerView.frame.width - 15 - 32.39
         for y in yPositions {
-            var x = leftInset
-            for i in 0..<totalElements {
-                let isEdge = (i == 0 || i == totalElements - 1)
-                let width = isEdge ? edgeWidth : middleWidth
-                let line = createLineView()
-                containerView.addSubview(line)
-                line.pin.bottom(y).left(x).width(width).height(height)
-                x += width + spacing
-            }
+            let beanView = BeansView()
+            containerView.addSubview(beanView)
+            beanView.pin.left(15).bottom(y).height(1).width(width)
+            beanView.set(alignment: .horizontal, color: Colors.gray2)
+            horizontalBeansView.append(beanView)
         }
     }
 
     // MARK: - Info View Display
 
     func displayInfoView(at point: CGPoint) {
-        guard let diagramView = diagramView else { return }
         let localPoint = convert(point, to: containerView)
         guard var nearestX = labelsMidX.min(by: { abs($0 - localPoint.x) < abs($1 - localPoint.x) }) else { return }
         guard let index = labelsMidX.firstIndex(of: nearestX) else { return }
-
-        containerView.subviews.filter { $0.tag == 999 }.forEach { $0.removeFromSuperview() }
-
-        let infoView = VisitorDiagramInfoView()
-        infoView.tag = 999
-        containerView.addSubview(infoView)
         nearestX += 14.5
 
+        guard let diagramView = diagramView else { return }
+        containerView.bringSubviewToFront(diagramView)
+
+        pinInfoView(amountVisitors: visitors[index], index: index, nearestX: nearestX)
+
+        verticalBeanView.pin.left(nearestX)
+        verticalBeanView.isHidden = false
+        infoView.isHidden = false
+    }
+
+    func pinInfoView(amountVisitors: Int, index: Int, nearestX: CGFloat) {
+        containerView.bringSubviewToFront(infoView)
+
         let formatString = LocalizableStringsDict.visitorsFormatString
-        let text = String(format: formatString, visitors[index])
+        let text = String(format: formatString, amountVisitors)
         let font = Fonts.gilroySemiBold(size: 15).font
         let textSize = (text as NSString).size(withAttributes: [.font: font])
         let widthInfoView = textSize.width + 32
@@ -185,40 +192,9 @@ private extension DiagramVisitorsTableViewCell {
 
         infoView.pin.height(72).width(widthInfoView).top().left().margin(9, gap, 0, 0)
         infoView.set(visitors: visitors[index], dateText: periodLabels[index])
-
-        let width: CGFloat = 1
-        let height: CGFloat = 6.5 // равна ширине middleWidth из horizontalBeans
-        let spacing: CGFloat = 11.5 // расстояние между линиями (примерное)
-        let topMargin = diagramView.frame.minY
-
-        let yPositions = stride(from: topMargin + 5, to: diagramView.frame.maxY, by: spacing)
-
-        for y in yPositions {
-            let view = UIView()
-            view.backgroundColor = Colors.red
-            view.layer.cornerRadius = 0.5
-            view.tag = 999
-            containerView.addSubview(view)
-
-            view.pin
-                .top(y)
-                .left(nearestX)
-                .width(width)
-                .height(height)
-        }
-
-        containerView.bringSubviewToFront(diagramView)
-        containerView.bringSubviewToFront(infoView)
     }
 
     // MARK: - Helpers
-
-    func createLineView() -> UIView {
-        let view = UIView()
-        view.backgroundColor = Colors.gray2
-        view.layer.cornerRadius = 0.5
-        return view
-    }
 
     func createDateLabel(with text: String) -> UILabel {
         let label = UILabel()
